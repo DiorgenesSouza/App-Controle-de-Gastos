@@ -1,7 +1,8 @@
 <div class="dashboard-wrapper">
   <div class="toast-sucesso" *ngIf="exibirSucesso">
-  ✅ Lançamento realizado com sucesso!
-</div>
+    ✅ Lançamento realizado com sucesso!
+  </div>
+
   <header class="dashboard-header">
     <div class="title-section">
       <h1>📊 Painel de Controle Financeiro</h1>
@@ -37,7 +38,7 @@
             placeholder="R$ 0,00"
             (input)="formatarMoeda($event)"
           >
-          </div>
+        </div>
         
         <div class="input-field">
           <label>Data</label>
@@ -54,7 +55,7 @@
         </div>
 
         <div class="input-field">
-          <label>Classificação</label>
+          <label translate="no">Classificação</label>
           <select formControlName="classificacao">
             <option value="" disabled selected>Selecione</option>
             <option value="FIXA">Fixa</option>
@@ -75,11 +76,42 @@
     <button (click)="gerarGraficoDiario()">☀️ Diário</button>
   </nav>
 
-  <div style="height: 400px; margin-top: 20px;" class="chart-section">
+  <div class="search-container">
+    <input 
+      type="text" 
+      placeholder="🔍 Buscar por descrição (ex: Aluguel)..."
+      [(ngModel)]="termoBusca"
+      (input)="filtrarTransacoes()"
+      class="search-input"
+    >
+  </div>
+
+  <div style="height: 350px; margin-top: 20px;" class="chart-section">
     <canvas baseChart
       [data]="barChartData"
       [options]="barChartOptions"
       [type]="'bar'">
     </canvas>
   </div>
-</div>
+
+  <div class="extrato-section">
+    <h3 translate="no">📑 Extrato Detalhado</h3>
+    <table class="extrato-table">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Descrição</th>
+          <th translate="no">Classificação</th>
+          <th>Tipo</th>
+          <th>Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of transacoesFiltradas">
+          <td>{{ (t.dataHora || t.data) | date:'dd/MM/yyyy' }}</td>
+          <td>{{ t.descricao }}</td>
+          <td><span class="badge">{{ t.classificacao }}</span></td>
+          <td [ngClass]="{'tipo-entrada': t.tipo === 'ENTRADA', 'tipo-saida': t.tipo === 'SAIDA'}">
+            <strong>{{ t.tipo }}</strong>
+          </td>
+          <td [style.color]="t.tipo === '

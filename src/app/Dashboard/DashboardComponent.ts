@@ -4,22 +4,27 @@ import { ChartConfiguration, ChartOptions } from 'chart.js';
 import { CommonModule } from '@angular/common'; 
 import { BaseChartDirective } from 'ng2-charts';
 import { Chart, registerables } from 'chart.js';
-import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective, ReactiveFormsModule],
+  imports: [CommonModule, BaseChartDirective, ReactiveFormsModule, FormsModule],
   templateUrl: './Dashboard.html',
   styleUrls: ['./dashboard.css']
 })
 export class DashboardComponent implements OnInit {
   
-  listaTransacoes: any[] = []; // Verifique se o nome está igual ao usado no forEach
+  // 1. Variáveis de Estado (Sempre no topo da classe)
+  listaTransacoes: any[] = []; 
+  transacoesFiltradas: any[] = []; 
+  termoBusca: string = '';
   saldoAtual: number = 0;
+  exibirSucesso: boolean = false;
 
+  // 2. Definição do Formulário
   gastoForm = new FormGroup({
     descricao: new FormControl('', [Validators.required]),
     valor: new FormControl(null, [Validators.required, Validators.min(0.01)]),
@@ -28,6 +33,7 @@ export class DashboardComponent implements OnInit {
     classificacao: new FormControl('', [Validators.required])
   });
 
+  // 3. Configurações do Gráfico
   public barChartData: ChartConfiguration<'bar'>['data'] = {
     labels: [],
     datasets: [
@@ -53,37 +59,13 @@ export class DashboardComponent implements OnInit {
     this.carregarDados();
   }
 
- // No topo da classe, junto com as outras variáveis
-exibirSucesso: boolean = false;
-
-// Atualize sua função salvarGasto
-salvarGasto() {
-  if (this.gastoForm.valid) {
-    const novoGasto = this.gastoForm.value; 
-
-    this.service.salvar(novoGasto).subscribe({
-      next: (res) => {
-        this.exibirSucesso = true; // Ativa a mensagem
-        this.gastoForm.reset();
-        this.carregarDados(); 
-
-        // Esconde a mensagem automaticamente após 3 segundos
-        setTimeout(() => {
-          this.exibirSucesso = false;
-        }, 3000);
-      },
-      error: (err) => {
-        console.error('Erro ao salvar:', err);
-        alert('Erro ao salvar. Verifique o servidor!');
-      }
-    });
-  }
-}
+  // --- FUNÇÕES DE DADOS E BACKEND ---
 
   carregarDados() {
     this.service.listar().subscribe({
       next: (dados) => {
-        this.listaTransacoes = dados; // Usei o nome que está na imagem e1d9e5.png
+        this.listaTransacoes = dados;
+        this.transacoesFiltradas = dados; // Garante que a lista comece com tudo
         this.gerarGraficoMensal();
       },
       error: (err) => console.error('Erro ao buscar transações:', err)
@@ -94,6 +76,50 @@ salvarGasto() {
       error: (err) => console.error('Erro ao buscar saldo:', err)
     });
   }
+
+  salvarGasto() {
+    if (this.gastoForm.valid) {
+      const novoGasto = this.gastoForm.value; 
+
+      this.service.salvar(novoGasto).subscribe({
+        next: (res) => {
+          this.exibirSucesso = true;
+          this.gastoForm.reset();
+          this.carregarDados(); 
+
+          setTimeout(() => {
+            this.exibirSucesso = false;
+          }, 3000);
+        },
+        error: (err) => {
+          console.error('Erro ao salvar:', err);
+          alert('Erro ao salvar. Verifique o servidor!');
+        }
+      });
+    }
+  }
+
+  // --- FUNÇÕES DE FILTRO E MÁSCARA ---
+
+  filtrarTransacoes() {
+    this.transacoesFiltradas = this.listaTransacoes.filter(t => 
+      t.descricao?.toLowerCase().includes(this.termoBusca.toLowerCase())
+    );
+  }
+
+  formatarMoeda(event: any) {
+    let valor = event.target.value.replace(/\D/g, '');
+    const valorNumerico = Number(valor) / 100;
+
+    event.target.value = valorNumerico.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    });
+
+    this.gastoForm.get('valor')!.setValue(valorNumerico as any, { emitEvent: false });
+  }
+
+  // --- FUNÇÕES DO GRÁFICO ---
 
   gerarGraficoMensal() {
     const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
@@ -144,18 +170,5 @@ salvarGasto() {
         { ...this.barChartData.datasets[0], data: dados, label: labelDataset }
       ]
     };
-  }
-
-  formatarMoeda(event: any) {
-    let valor = event.target.value.replace(/\D/g, '');
-    const valorNumerico = Number(valor) / 100;
-
-    event.target.value = valorNumerico.toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    });
-
-    // O '!' resolve o erro da imagem e2375f.png
-    this.gastoForm.get('valor')!.setValue(valorNumerico as any, { emitEvent: false });
   }
 }

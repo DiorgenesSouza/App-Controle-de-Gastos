@@ -1,4 +1,4 @@
-/* --- SEÇÃO DO FORMULÁRIO (CONSERTADO) --- */
+/* --- SEÇÃO DO FORMULÁRIO --- */
 .card-form {
   background: white;
   padding: 25px;
@@ -15,12 +15,11 @@
   font-size: 18px;
 }
 
-/* Alinhamento em linha com suporte a quebra em telas pequenas */
 .form-group-container {
   display: flex;
   flex-direction: row; 
   gap: 15px;
-  flex-wrap: wrap; /* Mudado para wrap para não quebrar o layout em notebooks menores */
+  flex-wrap: wrap;
   align-items: flex-end;
   width: 100%;
 }
@@ -30,10 +29,9 @@
   flex-direction: column;
   gap: 8px;
   flex: 1; 
-  min-width: 150px; /* Garante que os campos não fiquem minúsculos */
+  min-width: 150px;
 }
 
-/* Destaque para o campo de Descrição que costuma ser maior */
 .input-field:first-child {
   flex: 2; 
 }
@@ -64,10 +62,6 @@
   box-shadow: 0 0 5px rgba(52, 152, 219, 0.2);
 }
 
-.button-container {
-  margin-bottom: 0; /* Alinha o botão com o fundo dos inputs */
-}
-
 .button-container button {
   background-color: #2ecc71;
   color: white;
@@ -89,14 +83,13 @@
 .button-container button:disabled {
   background-color: #bdc3c7;
   cursor: not-allowed;
-  transform: none;
 }
 
 /* --- HEADER E SALDO --- */
 .dashboard-header {
   display: flex;
   justify-content: space-between;
-  align-items: center; /* Centraliza verticalmente o título e o card */
+  align-items: center;
   margin-bottom: 40px;
   width: 100%;
 }
@@ -108,17 +101,10 @@
   box-shadow: 0 4px 15px rgba(0,0,0,0.05);
   text-align: right;
   min-width: 180px;
-  border-right: 5px solid #bdc3c7; /* Cor neutra padrão */
 }
 
-/* Cores dinâmicas para o saldo */
-.saldo-positivo {
-  border-right: 5px solid #2ecc71;
-}
-
-.saldo-negativo {
-  border-right: 5px solid #e74c3c;
-}
+.saldo-positivo { border-right: 5px solid #2ecc71; }
+.saldo-negativo { border-right: 5px solid #e74c3c; }
 
 .saldo-card .label {
   display: block;
@@ -130,9 +116,10 @@
 
 .saldo-card .valor {
   font-size: 22px;
-  color: #2c3e50;
+  font-weight: bold;
 }
 
+/* --- BUSCA E FEEDBACK --- */
 .toast-sucesso {
   position: fixed;
   top: 20px;
@@ -141,9 +128,70 @@
   color: white;
   padding: 15px 25px;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   z-index: 1000;
   animation: slideIn 0.5s ease-out;
+}
+
+.search-container { margin: 20px 0; }
+
+.search-input {
+  width: 100%;
+  padding: 12px 20px;
+  border: 2px solid #ecf0f1;
+  border-radius: 25px;
+  font-size: 15px;
+  transition: all 0.3s;
+}
+
+/* --- NOVA SEÇÃO: TABELA DE EXTRATO --- */
+.extrato-section {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 30px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.extrato-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.extrato-table th {
+  text-align: left;
+  padding: 12px;
+  border-bottom: 2px solid #f1f2f6;
+  color: #7f8c8d;
+  font-size: 13px;
+}
+
+.extrato-table td {
+  padding: 12px;
+  border-bottom: 1px solid #f1f2f6;
+  font-size: 14px;
+}
+
+/* Cores para os Tipos (Badge) */
+.tipo-entrada {
+  color: #2ecc71;
+  background: rgba(46, 204, 113, 0.1);
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.tipo-saida {
+  color: #e74c3c;
+  background: rgba(231, 76, 60, 0.1);
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.badge {
+  background: #f1f2f6;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
 }
 
 @keyframes slideIn {
