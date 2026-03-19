@@ -9,15 +9,9 @@
       <p>Acompanhamento de entradas e saídas em tempo real</p>
     </div>
 
-    <div class="saldo-card"
-         [ngClass]="{
-           'saldo-positivo': saldoAtual >= 0,
-           'saldo-negativo': saldoAtual < 0
-         }">
+    <div class="saldo-card" [ngClass]="{'saldo-positivo': saldoAtual >= 0, 'saldo-negativo': saldoAtual < 0}">
       <span class="label">Saldo em Conta</span>
-      <strong class="valor">
-        {{ saldoAtual | currency:'BRL':'symbol':'1.2-2' }}
-      </strong>
+      <strong class="valor">{{ saldoAtual | currency:'BRL':'symbol':'1.2-2' }}</strong>
     </div>
   </header>
 
@@ -25,7 +19,6 @@
     <h3>Novo Lançamento Diário</h3>
     <form [formGroup]="gastoForm" (ngSubmit)="salvarGasto()">
       <div class="form-group-container">
-        
         <div class="input-field">
           <label>Descrição</label>
           <input type="text" formControlName="descricao" placeholder="Ex: Pagamento">
@@ -33,11 +26,7 @@
 
         <div class="input-field">
           <label>Valor (R$)</label>
-          <input 
-            type="text" 
-            placeholder="R$ 0,00"
-            (input)="formatarMoeda($event)"
-          >
+          <input type="text" placeholder="R$ 0,00" (input)="formatarMoeda($event)">
         </div>
         
         <div class="input-field">
@@ -55,7 +44,7 @@
         </div>
 
         <div class="input-field">
-          <label translate="no">Classificação</label>
+          <label>Classificação</label>
           <select formControlName="classificacao">
             <option value="" disabled selected>Selecione</option>
             <option value="FIXA">Fixa</option>
@@ -66,7 +55,6 @@
         <div class="button-container">
           <button type="submit" [disabled]="!gastoForm.valid">Salvar Lançamento</button>
         </div>
-        
       </div>
     </form>
   </div>
@@ -77,33 +65,32 @@
   </nav>
 
   <div class="search-container">
-    <input 
-      type="text" 
-      placeholder="🔍 Buscar por descrição (ex: Aluguel)..."
-      [(ngModel)]="termoBusca"
-      (input)="filtrarTransacoes()"
-      class="search-input"
-    >
+    <input type="text" placeholder="🔍 Buscar por descrição..." [(ngModel)]="termoBusca" (input)="filtrarTransacoes()" class="search-input">
   </div>
 
-  <div style="height: 350px; margin-top: 20px;" class="chart-section">
-    <canvas baseChart
-      [data]="barChartData"
-      [options]="barChartOptions"
-      [type]="'bar'">
-    </canvas>
+  <div class="charts-container">
+    <div class="chart-section" style="height: 350px; flex: 2;">
+      <h3>Gastos no Tempo</h3>
+      <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="'bar'"></canvas>
+    </div>
+
+    <div class="chart-section" style="height: 350px; flex: 1;">
+      <h3>Distribuição (Fixa vs Variável)</h3>
+      <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" [type]="'pie'"></canvas>
+    </div>
   </div>
 
   <div class="extrato-section">
-    <h3 translate="no">📑 Extrato Detalhado</h3>
+    <h3>📑 Extrato Detalhado</h3>
     <table class="extrato-table">
       <thead>
         <tr>
           <th>Data</th>
           <th>Descrição</th>
-          <th translate="no">Classificação</th>
+          <th>Classificação</th>
           <th>Tipo</th>
           <th>Valor</th>
+          <th style="text-align: center;">Ações</th>
         </tr>
       </thead>
       <tbody>
@@ -114,4 +101,14 @@
           <td [ngClass]="{'tipo-entrada': t.tipo === 'ENTRADA', 'tipo-saida': t.tipo === 'SAIDA'}">
             <strong>{{ t.tipo }}</strong>
           </td>
-          <td [style.color]="t.tipo === '
+          <td [style.color]="t.tipo === 'ENTRADA' ? '#2ecc71' : '#e74c3c'">
+            {{ t.valor | currency:'BRL' }}
+          </td>
+          <td style="text-align: center;">
+            <button class="btn-excluir" (click)="excluirTransacao(t.id)" title="Excluir Lançamento">🗑️</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

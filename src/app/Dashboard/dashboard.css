@@ -1,11 +1,68 @@
+/* --- CONTAINER PRINCIPAL E RESET --- */
+.dashboard-wrapper {
+  max-width: 1400px;       /* Centraliza e impede que o layout estique demais */
+  margin: 0 auto;          /* Alinha o painel ao centro da tela */
+  padding: 20px 40px;      /* Espaço lateral para não colar na borda da tela */
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+/* --- HEADER E SALDO --- */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  width: 100%;
+}
+
+.title-section h1 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 24px;
+}
+
+.title-section p {
+  margin: 5px 0 0 0;
+  color: #7f8c8d;
+}
+
+.saldo-card {
+  background: white;
+  padding: 15px 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  text-align: right;
+  min-width: 200px;
+}
+
+.saldo-positivo { border-right: 6px solid #2ecc71; }
+.saldo-negativo { border-right: 6px solid #e74c3c; }
+
+.saldo-card .label {
+  display: block;
+  font-size: 11px;
+  color: #95a5a6;
+  text-transform: uppercase;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.saldo-card .valor {
+  font-size: 24px;
+  font-weight: 800;
+  color: #2c3e50;
+}
+
 /* --- SEÇÃO DO FORMULÁRIO --- */
 .card-form {
   background: white;
   padding: 25px;
   border-radius: 12px;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-  width: 100%;
 }
 
 .card-form h3 {
@@ -17,11 +74,9 @@
 
 .form-group-container {
   display: flex;
-  flex-direction: row; 
   gap: 15px;
   flex-wrap: wrap;
   align-items: flex-end;
-  width: 100%;
 }
 
 .input-field {
@@ -29,55 +84,52 @@
   flex-direction: column;
   gap: 8px;
   flex: 1; 
-  min-width: 150px;
+  min-width: 160px;
 }
 
-.input-field:first-child {
-  flex: 2; 
+.input-field:first-of-type {
+  flex: 2; /* Campo descrição ganha mais espaço */
 }
 
 .input-field label {
   font-size: 13px;
   font-weight: 600;
   color: #34495e;
-  white-space: nowrap;
 }
 
 .input-field input, 
 .input-field select {
   padding: 10px;
   border: 1px solid #dcdfe6;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 14px;
-  height: 42px;
-  width: 100%;
-  box-sizing: border-box;
-  transition: border-color 0.2s;
+  height: 44px;
+  transition: all 0.2s;
 }
 
 .input-field input:focus, 
 .input-field select:focus {
   outline: none;
   border-color: #3498db;
-  box-shadow: 0 0 5px rgba(52, 152, 219, 0.2);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
 .button-container button {
   background-color: #2ecc71;
   color: white;
   border: none;
-  padding: 0 25px;
-  height: 42px;
-  border-radius: 6px;
-  font-weight: 600;
+  padding: 0 30px;
+  height: 44px;
+  border-radius: 8px;
+  font-weight: 700;
   cursor: pointer;
-  white-space: nowrap;
   transition: all 0.2s;
 }
 
 .button-container button:hover:not(:disabled) {
   background-color: #27ae60;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3);
 }
 
 .button-container button:disabled {
@@ -85,116 +137,158 @@
   cursor: not-allowed;
 }
 
-/* --- HEADER E SALDO --- */
-.dashboard-header {
+/* --- FILTROS E BUSCA --- */
+.filtros-bar {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 40px;
-  width: 100%;
+  gap: 10px;
+  margin-bottom: 15px;
 }
 
-.saldo-card {
+.filtros-bar button {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid #dcdfe6;
   background: white;
-  padding: 15px 25px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-  text-align: right;
-  min-width: 180px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
 }
 
-.saldo-positivo { border-right: 5px solid #2ecc71; }
-.saldo-negativo { border-right: 5px solid #e74c3c; }
-
-.saldo-card .label {
-  display: block;
-  font-size: 12px;
-  color: #7f8c8d;
-  text-transform: uppercase;
-  margin-bottom: 5px;
+.filtros-bar button:hover {
+  background: #f1f2f6;
+  border-color: #3498db;
 }
-
-.saldo-card .valor {
-  font-size: 22px;
-  font-weight: bold;
-}
-
-/* --- BUSCA E FEEDBACK --- */
-.toast-sucesso {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background-color: #2ecc71;
-  color: white;
-  padding: 15px 25px;
-  border-radius: 8px;
-  z-index: 1000;
-  animation: slideIn 0.5s ease-out;
-}
-
-.search-container { margin: 20px 0; }
 
 .search-input {
   width: 100%;
-  padding: 12px 20px;
-  border: 2px solid #ecf0f1;
-  border-radius: 25px;
+  padding: 12px 25px;
+  border: 2px solid #fff;
+  border-radius: 30px;
   font-size: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+  margin-bottom: 30px;
   transition: all 0.3s;
 }
 
-/* --- NOVA SEÇÃO: TABELA DE EXTRATO --- */
+.search-input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 6px 15px rgba(52, 152, 219, 0.1);
+}
+
+/* --- SEÇÃO DE GRÁFICOS (ALINHAMENTO CENTRALIZADO) --- */
+.charts-container {
+  display: flex;
+  gap: 25px;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+  justify-content: center;
+}
+
+.chart-section {
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  flex: 1;
+  min-width: 320px;
+  box-sizing: border-box;
+}
+
+.chart-section h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 16px;
+  color: #34495e;
+  text-align: center;
+}
+
+/* --- TABELA DE EXTRATO --- */
 .extrato-section {
   background: white;
-  padding: 20px;
-  border-radius: 12px;
-  margin-top: 30px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  overflow-x: auto; /* Scroll se a tela for pequena */
 }
 
 .extrato-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 15px;
 }
 
 .extrato-table th {
   text-align: left;
-  padding: 12px;
-  border-bottom: 2px solid #f1f2f6;
-  color: #7f8c8d;
-  font-size: 13px;
+  padding: 15px;
+  border-bottom: 2px solid #f8f9fa;
+  color: #95a5a6;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .extrato-table td {
-  padding: 12px;
-  border-bottom: 1px solid #f1f2f6;
+  padding: 15px;
+  border-bottom: 1px solid #f8f9fa;
   font-size: 14px;
+  color: #2c3e50;
 }
 
-/* Cores para os Tipos (Badge) */
 .tipo-entrada {
   color: #2ecc71;
-  background: rgba(46, 204, 113, 0.1);
-  padding: 4px 12px;
+  font-weight: 700;
+  background: rgba(46, 204, 113, 0.08);
+  padding: 5px 12px;
   border-radius: 20px;
 }
 
 .tipo-saida {
   color: #e74c3c;
-  background: rgba(231, 76, 60, 0.1);
-  padding: 4px 12px;
+  font-weight: 700;
+  background: rgba(231, 76, 60, 0.08);
+  padding: 5px 12px;
   border-radius: 20px;
 }
 
 .badge {
   background: #f1f2f6;
-  padding: 4px 8px;
-  border-radius: 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
   font-size: 11px;
+  font-weight: 600;
+  color: #7f8c8d;
+}
+
+/* --- BOTÕES E ANIMAÇÕES --- */
+.btn-excluir {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.btn-excluir:hover {
+  background-color: #fff1f0;
+  transform: scale(1.15) rotate(10deg);
+}
+
+.toast-sucesso {
+  position: fixed;
+  top: 30px;
+  right: 30px;
+  background: #2ecc71;
+  color: white;
+  padding: 15px 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  z-index: 9999;
+  animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 @keyframes slideIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from { transform: translateX(120%); }
+  to { transform: translateX(0); }
 }
