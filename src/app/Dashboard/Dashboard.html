@@ -1,0 +1,85 @@
+<div class="dashboard-wrapper">
+  <div class="toast-sucesso" *ngIf="exibirSucesso">
+  ✅ Lançamento realizado com sucesso!
+</div>
+  <header class="dashboard-header">
+    <div class="title-section">
+      <h1>📊 Painel de Controle Financeiro</h1>
+      <p>Acompanhamento de entradas e saídas em tempo real</p>
+    </div>
+
+    <div class="saldo-card"
+         [ngClass]="{
+           'saldo-positivo': saldoAtual >= 0,
+           'saldo-negativo': saldoAtual < 0
+         }">
+      <span class="label">Saldo em Conta</span>
+      <strong class="valor">
+        {{ saldoAtual | currency:'BRL':'symbol':'1.2-2' }}
+      </strong>
+    </div>
+  </header>
+
+  <div class="card-form">
+    <h3>Novo Lançamento Diário</h3>
+    <form [formGroup]="gastoForm" (ngSubmit)="salvarGasto()">
+      <div class="form-group-container">
+        
+        <div class="input-field">
+          <label>Descrição</label>
+          <input type="text" formControlName="descricao" placeholder="Ex: Pagamento">
+        </div>
+
+        <div class="input-field">
+          <label>Valor (R$)</label>
+          <input 
+            type="text" 
+            placeholder="R$ 0,00"
+            (input)="formatarMoeda($event)"
+          >
+          </div>
+        
+        <div class="input-field">
+          <label>Data</label>
+          <input type="date" formControlName="data">
+        </div>
+
+        <div class="input-field">
+          <label>Tipo</label>
+          <select formControlName="tipo">
+            <option value="" disabled selected>Selecione</option>
+            <option value="ENTRADA">Entrada (+)</option>
+            <option value="SAIDA">Saída (-)</option>
+          </select>
+        </div>
+
+        <div class="input-field">
+          <label>Classificação</label>
+          <select formControlName="classificacao">
+            <option value="" disabled selected>Selecione</option>
+            <option value="FIXA">Fixa</option>
+            <option value="VARIAVEL">Variável</option>
+          </select>
+        </div>
+
+        <div class="button-container">
+          <button type="submit" [disabled]="!gastoForm.valid">Salvar Lançamento</button>
+        </div>
+        
+      </div>
+    </form>
+  </div>
+
+  <nav class="filtros-bar">
+    <button (click)="gerarGraficoMensal()">📅 Mensal</button>
+    <button (click)="gerarGraficoDiario()">☀️ Diário</button>
+  </nav>
+
+  <div style="height: 400px; margin-top: 20px;" class="chart-section">
+    <canvas baseChart
+      [data]="barChartData"
+      [options]="barChartOptions"
+      [type]="'bar'">
+    </canvas>
+  </div>
+</div>
