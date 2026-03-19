@@ -10,23 +10,50 @@
     </div>
 
     <div class="saldo-card" [ngClass]="{'saldo-positivo': saldoAtual >= 0, 'saldo-negativo': saldoAtual < 0}">
-      <span class="label">Saldo em Conta</span>
-      <strong class="valor">{{ saldoAtual | currency:'BRL':'symbol':'1.2-2' }}</strong>
+      <span class="label">SALDO EM CONTA</span>
+      <strong class="valor">{{ saldoAtual | currency:'BRL' }}</strong>
     </div>
   </header>
+
+  <div class="resumo-cards-container">
+    <div class="resumo-card entrada">
+      <div class="resumo-info">
+        <span class="resumo-label">Total Entradas</span>
+        <strong class="resumo-valor">{{ totalEntradas | currency:'BRL' }}</strong>
+      </div>
+      <span class="resumo-icon">➕</span>
+    </div>
+
+    <div class="resumo-card saida">
+      <div class="resumo-info">
+        <span class="resumo-label">Total Saídas</span>
+        <strong class="resumo-valor">{{ totalSaidas | currency:'BRL' }}</strong>
+      </div>
+      <span class="resumo-icon">➖</span>
+    </div>
+
+    <div class="resumo-card liquido">
+      <div class="resumo-info">
+        <span class="resumo-label">Saldo Líquido</span>
+        <strong class="resumo-valor">{{ saldoAtual | currency:'BRL' }}</strong>
+      </div>
+      <span class="resumo-icon">💰</span>
+    </div>
+  </div>
 
   <div class="card-form">
     <h3>Novo Lançamento Diário</h3>
     <form [formGroup]="gastoForm" (ngSubmit)="salvarGasto()">
       <div class="form-group-container">
+        
         <div class="input-field">
           <label>Descrição</label>
-          <input type="text" formControlName="descricao" placeholder="Ex: Pagamento">
+          <input type="text" formControlName="descricao" placeholder="Ex: Gasolina, Padaria...">
         </div>
 
         <div class="input-field">
           <label>Valor (R$)</label>
-          <input type="text" placeholder="R$ 0,00" (input)="formatarMoeda($event)">
+          <input type="text" formControlName="valor" placeholder="R$ 0,00" (input)="formatarMoeda($event)">
         </div>
         
         <div class="input-field">
@@ -37,7 +64,7 @@
         <div class="input-field">
           <label>Tipo</label>
           <select formControlName="tipo">
-            <option value="" disabled selected>Selecione</option>
+            <option value="" disabled>Selecione</option>
             <option value="ENTRADA">Entrada (+)</option>
             <option value="SAIDA">Saída (-)</option>
           </select>
@@ -46,9 +73,15 @@
         <div class="input-field">
           <label>Classificação</label>
           <select formControlName="classificacao">
-            <option value="" disabled selected>Selecione</option>
+            <option value="" disabled>Selecione</option>
+            <option value="ALIMENTACAO">Alimentação</option>
+            <option value="LAZER">Lazer</option>
+            <option value="TRANSPORTE">Transporte</option>
+            <option value="SAUDE">Saúde</option>
+            <option value="MORADIA">Moradia</option>
             <option value="FIXA">Fixa</option>
             <option value="VARIAVEL">Variável</option>
+            <option value="OUTROS">Outros</option>
           </select>
         </div>
 
@@ -65,56 +98,73 @@
       <button (click)="gerarGraficoDiario()">☀️ Diário</button>
     </div>
     
+    <div class="search-container">
+      <input 
+        type="text" 
+        placeholder="🔍 Buscar por descrição..." 
+        [(ngModel)]="termoBusca" 
+        (input)="filtrarTransacoes()" 
+        class="search-input">
+    </div>
+
     <button (click)="exportarPDF()" class="btn-pdf">
       📄 Exportar PDF
     </button>
   </nav>
 
-  <div class="search-container">
-    <input type="text" placeholder="🔍 Buscar por descrição..." [(ngModel)]="termoBusca" (input)="filtrarTransacoes()" class="search-input">
-  </div>
-
   <div class="charts-container">
-    <div class="chart-section" style="height: 350px; flex: 2;">
+    <div class="chart-section bar-chart">
       <h3>Gastos no Tempo</h3>
-      <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="'bar'"></canvas>
+      <div class="chart-wrapper">
+        <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="'bar'"></canvas>
+      </div>
     </div>
 
-    <div class="chart-section" style="height: 350px; flex: 1;">
-      <h3>Distribuição (Fixa vs Variável)</h3>
-      <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" [type]="'pie'"></canvas>
+    <div class="chart-section pie-chart">
+      <h3>Análise de Gastos por Item</h3>
+      <div class="chart-wrapper">
+        <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" [type]="'pie'"></canvas>
+      </div>
     </div>
   </div>
 
   <div class="extrato-section">
     <h3>📑 Extrato Detalhado</h3>
-    <table class="extrato-table">
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Descrição</th>
-          <th>Classificação</th>
-          <th>Tipo</th>
-          <th>Valor</th>
-          <th style="text-align: center;">Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let t of transacoesFiltradas">
-          <td>{{ (t.dataHora || t.data) | date:'dd/MM/yyyy' }}</td>
-          <td>{{ t.descricao }}</td>
-          <td><span class="badge">{{ t.classificacao }}</span></td>
-          <td [ngClass]="{'tipo-entrada': t.tipo === 'ENTRADA', 'tipo-saida': t.tipo === 'SAIDA'}">
-            <strong>{{ t.tipo }}</strong>
-          </td>
-          <td [style.color]="t.tipo === 'ENTRADA' ? '#2ecc71' : '#e74c3c'">
-            {{ t.valor | currency:'BRL' }}
-          </td>
-          <td style="text-align: center;">
-            <button class="btn-excluir" (click)="excluirTransacao(t.id)" title="Excluir Lançamento">🗑️</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-responsive">
+      <table class="extrato-table">
+        <thead>
+          <tr>
+            <th>DATA</th>
+            <th>DESCRIÇÃO</th>
+            <th>CLASSIFICAÇÃO</th>
+            <th>TIPO</th>
+            <th>VALOR</th>
+            <th class="text-center">AÇÕES</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of transacoesFiltradas">
+            <td>{{ (t.dataHora || t.data) | date:'dd/MM/yyyy' }}</td>
+            <td>{{ t.descricao }}</td>
+            <td>
+              <span class="badge-classificacao">{{ t.classificacao }}</span>
+            </td>
+            <td>
+              <span [ngClass]="t.tipo === 'ENTRADA' ? 'badge-entrada' : 'badge-saida'">
+                {{ t.tipo }}
+              </span>
+            </td>
+            <td [ngClass]="t.tipo === 'ENTRADA' ? 'valor-positivo' : 'valor-negativo'">
+              {{ t.valor | currency:'BRL' }}
+            </td>
+            <td class="text-center">
+              <button class="btn-excluir" (click)="excluirTransacao(t.id)" title="Excluir Lançamento">
+                🗑️
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
