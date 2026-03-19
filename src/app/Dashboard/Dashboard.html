@@ -60,8 +60,14 @@
   </div>
 
   <nav class="filtros-bar">
-    <button (click)="gerarGraficoMensal()">📅 Mensal</button>
-    <button (click)="gerarGraficoDiario()">☀️ Diário</button>
+    <div class="group-btns">
+      <button (click)="gerarGraficoMensal()">📅 Mensal</button>
+      <button (click)="gerarGraficoDiario()">☀️ Diário</button>
+    </div>
+    
+    <button (click)="exportarPDF()" class="btn-pdf">
+      📄 Exportar PDF
+    </button>
   </nav>
 
   <div class="search-container">
