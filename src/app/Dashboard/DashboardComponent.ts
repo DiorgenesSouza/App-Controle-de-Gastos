@@ -31,6 +31,8 @@ export class DashboardComponent implements OnInit {
   totalSaidas: number = 0;
   
   exibirSucesso: boolean = false;
+  isDarkMode: boolean = false;
+  percentualGasto: number = 0;
 
   gastoForm = new FormGroup({
     descricao: new FormControl('', [Validators.required]),
@@ -40,14 +42,16 @@ export class DashboardComponent implements OnInit {
     classificacao: new FormControl('', [Validators.required])
   });
 
+  // --- CONFIGURAÇÕES DE GRÁFICOS ---
   public barChartData: ChartConfiguration<'bar'>['data'] = {
     labels: [],
     datasets: [{ data: [], label: 'Valores (R$)', backgroundColor: '#3498db', borderColor: '#2980b9', borderWidth: 1, borderRadius: 5 }]
   };
 
-  public barChartOptions: ChartOptions<'bar'> = {
+  public barChartOptions: ChartOptions<'bar' | 'line'> = {
     responsive: true,
     maintainAspectRatio: false,
+    plugins: { legend: { display: true, position: 'top' } },
     scales: { y: { beginAtZero: true } }
   };
 
@@ -59,17 +63,19 @@ export class DashboardComponent implements OnInit {
   public pieChartOptions: ChartOptions<'pie'> = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: { 
-      legend: { position: 'bottom' },
-      tooltip: {
-        callbacks: {
-          label: (context) => {
-            const value = context.parsed || 0;
-            return ` R$ ${value.toFixed(2)}`;
-          }
-        }
-      }
-    }
+    plugins: { legend: { position: 'bottom' } }
+  };
+
+  public lineChartData: ChartConfiguration<'line'>['data'] = {
+    labels: [],
+    datasets: [{ 
+      data: [], 
+      label: 'Evolução do Saldo (R$)', 
+      borderColor: '#3498db', 
+      backgroundColor: 'rgba(52, 152, 219, 0.2)', 
+      fill: true,
+      tension: 0.4 
+    }]
   };
 
   constructor(private service: TransacaoService, private cdr: ChangeDetectorRef) {}
@@ -93,13 +99,50 @@ export class DashboardComponent implements OnInit {
           .reduce((acc, t) => acc + Number(t.valor), 0);
 
         this.saldoAtual = this.totalEntradas - this.totalSaidas;
+        this.percentualGasto = this.totalEntradas > 0 ? (this.totalSaidas / this.totalEntradas) * 100 : 0;
 
         this.gerarGraficoMensal(); 
         this.gerarGraficoGastosPorDescricao(); 
+        this.gerarGraficoEvolucao(); 
         this.cdr.detectChanges();
       },
       error: (err) => console.error('Erro ao buscar transações:', err)
     });
+  }
+
+  toggleDarkMode() {
+    this.isDarkMode = !this.isDarkMode;
+    document.body.classList.toggle('dark-mode');
+  }
+
+  gerarGraficoEvolucao() {
+    const dias = Array.from({length: 31}, (_, i) => (i + 1).toString());
+    let saldoAcumulado = 0;
+    const evolucao = new Array(31).fill(null);
+
+    const transacoesOrdenadas = [...this.listaTransacoes].sort((a, b) => 
+      new Date(a.dataHora || a.data).getTime() - new Date(b.dataHora || b.data).getTime()
+    );
+
+    transacoesOrdenadas.forEach(t => {
+      const data = new Date(t.dataHora || t.data);
+      const dia = data.getDate() - 1;
+      const valor = t.tipo?.toUpperCase() === 'ENTRADA' ? Number(t.valor) : -Number(t.valor);
+      saldoAcumulado += valor;
+      if(dia >= 0 && dia < 31) evolucao[dia] = saldoAcumulado;
+    });
+
+    let ultimoSaldo = 0;
+    for (let i = 0; i < evolucao.length; i++) {
+      if (evolucao[i] === null) evolucao[i] = ultimoSaldo;
+      else ultimoSaldo = evolucao[i];
+    }
+
+    this.lineChartData = {
+      labels: dias,
+      datasets: [{ ...this.lineChartData.datasets[0], data: evolucao }]
+    };
+    this.renderizarGrafico();
   }
 
   gerarGraficoGastosPorDescricao() {
@@ -116,55 +159,6 @@ export class DashboardComponent implements OnInit {
       datasets: [{ ...this.pieChartData.datasets[0], data: Object.values(agrupado) }]
     };
     this.renderizarGrafico();
-  }
-
-  // --- SOLUÇÃO DO ERRO TS2339: MÉTODO DIÁRIO ADICIONADO ---
-  gerarGraficoDiario() {
-    const hoje = new Date().toLocaleDateString('pt-BR');
-    const gastosHoje = this.listaTransacoes.filter(t => {
-      const dataT = new Date(t.dataHora || t.data).toLocaleDateString('pt-BR');
-      return dataT === hoje && t.tipo?.toUpperCase() === 'SAIDA';
-    });
-
-    const agrupado: { [key: string]: number } = {};
-    gastosHoje.forEach(t => {
-      const desc = t.descricao?.toUpperCase() || 'OUTROS';
-      agrupado[desc] = (agrupado[desc] || 0) + Number(t.valor);
-    });
-
-    this.barChartData = {
-      labels: Object.keys(agrupado).length > 0 ? Object.keys(agrupado) : ['Sem gastos hoje'],
-      datasets: [{
-        ...this.barChartData.datasets[0],
-        data: Object.values(agrupado).length > 0 ? Object.values(agrupado) : [0],
-        label: `Gastos de Hoje (${hoje})`,
-        backgroundColor: '#f1c40f' // Cor amarela para diferenciar do mensal
-      }]
-    };
-    this.renderizarGrafico();
-  }
-
-  salvarGasto() {
-    if (this.gastoForm.valid) {
-      this.service.salvar(this.gastoForm.value).subscribe({
-        next: () => {
-          this.exibirSucesso = true;
-          this.gastoForm.reset();
-          this.carregarDados(); 
-          setTimeout(() => this.exibirSucesso = false, 3000);
-        },
-        error: (err) => alert('Erro ao salvar!')
-      });
-    }
-  }
-
-  excluirTransacao(id: number) {
-    if (confirm('Deseja realmente excluir?')) {
-      this.service.deletar(id).subscribe({
-        next: () => this.carregarDados(),
-        error: (err) => alert('Erro ao excluir!')
-      });
-    }
   }
 
   gerarGraficoMensal() {
@@ -192,40 +186,68 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  salvarGasto() {
+    if (this.gastoForm.valid) {
+      this.service.salvar(this.gastoForm.value).subscribe({
+        next: () => {
+          this.exibirSucesso = true;
+          this.gastoForm.reset();
+          this.carregarDados(); 
+          setTimeout(() => this.exibirSucesso = false, 3000);
+        },
+        error: (err) => alert('Erro ao salvar!')
+      });
+    }
+  }
+
+  excluirTransacao(id: number) {
+    if (confirm('Deseja realmente excluir?')) {
+      this.service.deletar(id).subscribe({
+        next: () => this.carregarDados(),
+        error: (err) => alert('Erro ao excluir!')
+      });
+    }
+  }
+
   filtrarTransacoes() {
     this.transacoesFiltradas = this.listaTransacoes.filter(t => 
       t.descricao?.toLowerCase().includes(this.termoBusca.toLowerCase())
     );
   }
 
+  // --- LÓGICA DE FORMATAÇÃO REVISADA ---
   formatarMoeda(event: any) {
-    let valorRaw = event.target.value.replace(/\D/g, '');
+    let valorRaw = event.target.value.replace(/\D/g, ''); 
+    
+    if (!valorRaw) {
+      this.gastoForm.get('valor')!.setValue(null);
+      return;
+    }
+
+    // Transformar a string de números em decimal (ex: "17900" -> 179.00)
     const valorNumerico = Number(valorRaw) / 100;
-    event.target.value = valorNumerico.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+    // Formata visualmente para o input
+    const valorFormatado = valorNumerico.toLocaleString('pt-BR', { 
+      style: 'currency', 
+      currency: 'BRL',
+      minimumFractionDigits: 2 
+    });
+
+    // Atualiza o valor exibido no campo sem disparar novos eventos de input infinitos
+    event.target.value = valorFormatado;
+    
+    // Atualiza o valor numérico puro no FormControll (o que vai para o JSON do banco)
     this.gastoForm.get('valor')!.setValue(valorNumerico, { emitEvent: false });
+    this.gastoForm.get('valor')!.markAsDirty();
+    this.gastoForm.get('valor')!.updateValueAndValidity();
   }
 
   exportarPDF() {
     const doc = new jsPDF();
     const dataGeracao = new Date().toLocaleDateString('pt-BR');
-    const pageWidth = doc.internal.pageSize.width;
-    const pageHeight = doc.internal.pageSize.height;
-
     doc.setFontSize(18);
     doc.text('Relatório de Controle Financeiro', 14, 20);
-    
-    doc.setFontSize(11);
-    doc.text(`Data: ${dataGeracao}`, 14, 30);
-    
-    // Adicionado resumo financeiro no PDF
-    doc.setTextColor(46, 204, 113); // Verde
-    doc.text(`Total Entradas: R$ ${this.totalEntradas.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`, 14, 38);
-    doc.setTextColor(231, 76, 60); // Vermelho
-    doc.text(`Total Saídas: R$ ${this.totalSaidas.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`, 14, 44);
-    doc.setTextColor(44, 62, 80); // Cor padrão
-    doc.setFont('helvetica', 'bold');
-    doc.text(`Saldo Líquido: R$ ${this.saldoAtual.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`, 14, 52);
-
     autoTable(doc, {
       startY: 60,
       head: [['Data', 'Descrição', 'Classificação', 'Tipo', 'Valor']],
@@ -235,17 +257,8 @@ export class DashboardComponent implements OnInit {
         t.classificacao,
         t.tipo,
         `R$ ${Number(t.valor).toFixed(2)}`
-      ]),
-      headStyles: { fillColor: [52, 152, 219] },
-      didDrawPage: (data) => {
-        doc.setFontSize(10);
-        doc.setTextColor(150);
-        doc.text('Gerado pelo Painel Financeiro', 14, pageHeight - 10);
-        const paginaAtual = (doc as any).internal.getCurrentPageInfo().pageNumber;
-        doc.text(`Página ${paginaAtual}`, pageWidth - 30, pageHeight - 10);
-      }
+      ])
     });
-
     doc.save(`relatorio-${dataGeracao.replace(/\//g, '-')}.pdf`);
   }
 }
