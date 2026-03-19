@@ -56,6 +56,11 @@
 
     <section class="card-branco form-container">
       <h3 class="form-title">Novo Lançamento Diário</h3>
+      
+      <div *ngIf="exibirSucesso" class="badge-entrada" style="margin-bottom: 15px; padding: 10px; text-align: center;">
+        ✅ Lançamento realizado com sucesso!
+      </div>
+
       <form [formGroup]="gastoForm" (ngSubmit)="salvarGasto()" class="form-grid">
           <div class="input-field">
             <label>Descrição</label>
@@ -68,8 +73,7 @@
               type="text" 
               formControlName="valor"
               placeholder="R$ 0,00"
-              (input)="formatarMoeda($event)"
-              (blur)="formatarMoeda($event)">
+              (input)="formatarMoeda($event)">
           </div>
 
           <div class="input-field">
@@ -101,36 +105,48 @@
       </form>
     </section>
 
-    <div class="charts-grid">
+    <div class="charts-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
       <div class="card-branco chart-card">
-        <h3>Gastos no Tempo</h3>
-        <div class="chart-container">
-          <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="'bar'"></canvas>
+        <h3>Gastos por Mês</h3>
+        <div class="chart-container" style="height: 250px;">
+          <canvas baseChart 
+            [data]="barChartData" 
+            [options]="barChartOptions" 
+            type="bar">
+          </canvas>
         </div>
       </div>
 
       <div class="card-branco chart-card">
-        <h3>Evolução do Saldo (Mês Atual)</h3>
-        <div class="chart-container">
-          <canvas baseChart [data]="lineChartData" [options]="barChartOptions" [type]="'line'"></canvas>
+        <h3>Evolução do Saldo</h3>
+        <div class="chart-container" style="height: 250px;">
+          <canvas baseChart 
+            [data]="lineChartData" 
+            [options]="lineChartOptions" 
+            type="line">
+          </canvas>
         </div>
       </div>
 
       <div class="card-branco chart-card">
-        <h3>Análise de Gastos por Item</h3>
-        <div class="chart-container">
-          <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" [type]="'pie'"></canvas>
+        <h3>Saídas por Descrição</h3>
+        <div class="chart-container" style="height: 250px;">
+          <canvas baseChart 
+            [data]="pieChartData" 
+            [options]="pieChartOptions" 
+            type="pie">
+          </canvas>
         </div>
       </div>
     </div>
 
-    <div class="card-branco table-container">
+    <div class="card-branco table-container" style="margin-top: 20px;">
       <div class="filtros-container">
         <div class="busca-wrapper">
           <input type="text" [(ngModel)]="termoBusca" (input)="filtrarTransacoes()" placeholder="🔍 Buscar por descrição...">
         </div>
         <button class="btn-export" (click)="exportarPDF()">
-          <span class="pdf-icon">📄</span> Exportar PDF
+          📄 Exportar PDF
         </button>
       </div>
       
@@ -140,7 +156,7 @@
           <tr>
             <th>DATA</th>
             <th>DESCRIÇÃO</th>
-            <th>CLASSIFICAÇÃO</th>
+            <th>CATEGORIA</th>
             <th>TIPO</th>
             <th>VALOR</th>
             <th>AÇÕES</th>
@@ -156,7 +172,9 @@
                 {{ t.tipo }}
               </span>
             </td>
-            <td>{{ t.valor | currency:'BRL' }}</td>
+            <td [ngClass]="t.tipo === 'ENTRADA' ? 'texto-sucesso' : 'texto-perigo'">
+               {{ t.valor | currency:'BRL' }}
+            </td>
             <td>
               <button class="btn-delete" (click)="excluirTransacao(t.id)" title="Excluir">🗑️</button>
             </td>

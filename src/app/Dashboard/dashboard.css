@@ -1,282 +1,176 @@
-/* --- 1. CONFIGURAÇÕES GLOBAIS E VARIÁVEIS --- */
+/* --- 1. VARIÁVEIS E TEMA --- */
 :root {
-  --bg-body: #f4f7f6; 
+  --bg-body: #f8fafc;
   --bg-card: #ffffff;
-  --texto-principal: #2c3e50;
-  --texto-secundario: #7f8c8d;
-  --borda: #dcdfe6;
-  --sombra: rgba(0, 0, 0, 0.05);
-  --primaria: #3498db;
-  --sucesso: #2ecc71;
-  --perigo: #e74c3c;
-  --atencao: #f1c40f;
+  --texto-principal: #1e293b;
+  --texto-secundario: #64748b;
+  --borda: #e2e8f0;
+  --primaria: #3b82f6;
+  --sucesso: #22c55e;
+  --perigo: #ef4444;
+  --atencao: #f59e0b;
+  --sombra: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-/* Variáveis para o Modo Escuro */
-/* Adicionado o seletor direto e descendente para garantir a aplicação */
-.dark-mode, .dark-mode body {
-  --bg-body: #121212;
-  --bg-card: #1e1e1e;
-  --texto-principal: #e0e0e0; /* Cor clara para os textos principais */
-  --texto-secundario: #b0b0b0;
-  --borda: #333333;
-  --sombra: rgba(0, 0, 0, 0.3);
+.dark-mode {
+  --bg-body: #0f172a;
+  --bg-card: #1e293b;
+  --texto-principal: #f8fafc;
+  --texto-secundario: #94a3b8;
+  --borda: #334155;
 }
 
-/* --- 2. CENTRALIZAÇÃO E LAYOUT --- */
+/* --- 2. LAYOUT E CABEÇALHO --- */
 .dashboard-container {
-  width: 100%;
-  min-height: 100vh;
   background-color: var(--bg-body);
-  display: flex;
-  justify-content: center;
+  color: var(--texto-principal);
+  min-height: 100vh;
   padding: 30px 20px;
   transition: all 0.3s ease;
-  color: var(--texto-principal); /* Garante que o container herde a cor correta */
 }
 
 .dashboard-content {
-  width: 100%;
   max-width: 1200px;
-  margin: 0 auto;    
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 25px;
 }
 
-/* --- 3. ESTILO DOS CARDS --- */
-.card-branco {
-  background-color: var(--bg-card);
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px var(--sombra);
-  width: 100%;
-  box-sizing: border-box;
-  color: var(--texto-principal);
-}
-
-/* --- 4. HEADER E SALDO --- */
 .dashboard-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap; 
+  align-items: flex-start;
+}
+
+.header-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
   gap: 15px;
-}
-
-/* AJUSTE DO TÍTULO: Garante que o h1 mude de cor no modo escuro */
-.dashboard-header h1 {
-  color: var(--texto-principal);
-  margin: 0;
-  transition: color 0.3s ease;
-}
-
-.dashboard-header p {
-  color: var(--texto-secundario);
-  margin: 5px 0 0 0;
 }
 
 .saldo-card {
   background: var(--bg-card);
   padding: 15px 25px;
   border-radius: 12px;
-  border-right: 6px solid var(--sucesso);
+  box-shadow: var(--sombra);
+  border: 1px solid var(--borda);
   text-align: right;
-  box-shadow: 0 4px 12px var(--sombra);
 }
 
-.label-saldo { font-size: 11px; color: var(--texto-secundario); font-weight: bold; text-transform: uppercase; }
-.valor-saldo { font-size: 26px; font-weight: 800; color: var(--texto-principal); }
-
-/* --- 5. PROGRESSO DO ORÇAMENTO --- */
-.progress-bar-bg { 
-  background: var(--borda); 
-  border-radius: 10px; 
-  height: 10px; 
-  width: 100%; 
-  overflow: hidden; 
-  margin-top: 8px;
+.valor-saldo {
+  font-size: 24px;
+  font-weight: 800;
 }
 
-.progress-bar-fill { height: 100%; transition: width 0.6s ease; }
-.bg-sucesso { background-color: var(--sucesso); }
-.bg-atencao { background-color: var(--atencao); }
-.bg-perigo { background-color: var(--perigo); }
+/* --- 3. CARDS E RESUMO --- */
+.card-branco {
+  background: var(--bg-card);
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: var(--sombra);
+  border: 1px solid var(--borda);
+}
 
-/* --- 6. GRID DE RESUMO --- */
 .resumo-grid {
-  display: flex;
-  flex-wrap: wrap; 
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
 }
 
 .resumo-item {
-  flex: 1 1 250px; 
   background: var(--bg-card);
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 4px 12px var(--sombra);
   border-left: 6px solid #ccc;
+  box-shadow: var(--sombra);
 }
 
 .resumo-item.entrada { border-left-color: var(--sucesso); }
 .resumo-item.saida { border-left-color: var(--perigo); }
 .resumo-item.saldo { border-left-color: var(--primaria); }
 
-.resumo-valor { font-size: 22px; font-weight: 800; color: var(--texto-principal); }
-
-/* --- 7. FORMULÁRIO E BOTÃO --- */
+/* --- 4. FORMULÁRIO (AJUSTADO PARA O BOTÃO APARECER) --- */
 .form-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: flex; /* Mudança para flex para garantir que o botão não suma */
+  flex-wrap: wrap; 
   gap: 15px;
   align-items: flex-end;
 }
 
-.input-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex: 1 1 180px;
-}
-
-.input-field label {
-  color: var(--texto-principal);
-  font-size: 14px;
-  font-weight: 600;
+.input-field { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 5px; 
+  flex: 1; /* Faz os campos crescerem */
+  min-width: 160px; /* Garante que não fiquem muito pequenos */
 }
 
 .input-field input, .input-field select {
   height: 40px;
   padding: 0 12px;
   border-radius: 8px;
-  border: 2px solid var(--borda); 
-  background: var(--bg-card);
+  border: 1px solid var(--borda);
+  background: var(--bg-body);
   color: var(--texto-principal);
   width: 100%;
-  outline: none;
-  transition: border-color 0.2s;
 }
-
-.input-field input:focus { border-color: var(--primaria); }
 
 .btn-salvar {
   height: 40px;
-  padding: 0 25px;
-  border-radius: 8px;
-  background-color: var(--sucesso);
+  background: var(--sucesso);
   color: white;
   border: none;
+  border-radius: 8px;
   font-weight: bold;
   cursor: pointer;
-  transition: all 0.3s ease;
-  flex: 0 0 auto;
+  padding: 0 25px;
+  min-width: 150px; /* Garante que o botão tenha um tamanho mínimo */
+  transition: opacity 0.3s;
 }
 
 .btn-salvar:disabled {
-  background-color: #ccc !important;
-  color: #666 !important;
+  background: #cbd5e1; /* Cor cinza para quando estiver desabilitado */
   cursor: not-allowed;
-  opacity: 0.7;
+  color: #64748b;
 }
 
 .btn-salvar:hover:not(:disabled) {
-  background-color: #27ae60;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(46, 204, 113, 0.3);
+  filter: brightness(0.9);
 }
 
-/* --- 8. FILTROS E EXPORTAÇÃO --- */
+/* --- 5. TABELA E PDF --- */
 .filtros-container {
   display: flex;
-  justify-content: space-between; 
+  justify-content: space-between;
   align-items: center;
-  width: 100%;
   margin-bottom: 20px;
-  gap: 15px;
 }
 
-.busca-wrapper input { 
-  padding: 10px 15px; 
-  border-radius: 20px; 
-  border: 2px solid var(--borda); 
-  width: 280px;
-  background: var(--bg-card);
-  color: var(--texto-principal);
-  outline: none;
+.busca-wrapper input {
+  width: 300px;
+  padding: 10px 15px;
+  border-radius: 20px;
+  border: 1px solid var(--borda);
+  background: var(--bg-body);
 }
 
 .btn-export {
-  padding: 10px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--borda);
+  padding: 8px 15px;
   border-radius: 8px;
-  background-color: var(--primaria);
-  color: white;
-  border: none;
-  font-weight: bold;
   cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 10px; 
-  font-size: 14px;
+  color: var(--texto-principal);
 }
 
-.btn-export:hover {
-  background-color: #2980b9;
-  filter: brightness(1.1);
-}
+table { width: 100%; border-collapse: collapse; }
+th { padding: 12px; text-align: left; color: var(--texto-secundario); border-bottom: 2px solid var(--borda); }
+td { padding: 12px; border-bottom: 1px solid var(--borda); }
 
-.btn-export .pdf-icon {
-  font-size: 24px; 
-  display: inline-block;
-  line-height: 1;
-}
-
-/* --- 9. TABELA E BADGES --- */
-.table-container { overflow-x: auto; }
-
-table { width: 100%; border-collapse: collapse; color: var(--texto-principal); margin-top: 10px; }
-th { text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; color: var(--texto-secundario); }
-th, td { text-align: left; padding: 15px 12px; border-bottom: 1px solid var(--borda); }
-
-.badge-entrada { background: rgba(46, 204, 113, 0.15); color: var(--sucesso); padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; }
-.badge-saida { background: rgba(231, 76, 60, 0.15); color: var(--perigo); padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; }
-
-/* --- AJUSTE FORÇADO DA LIXEIRA --- */
-.btn-delete { 
-  background: none; 
-  border: none; 
-  cursor: pointer; 
-  font-size: 28px; 
-  transition: color 0.2s, transform 0.2s; 
-  opacity: 0.8;
-  color: #666;
-  display: inline-flex; 
-  align-items: center;
-  justify-content: center;
-  width: 44px; 
-  height: 44px;
-}
-
-.btn-delete:hover { 
-  opacity: 1; 
-  color: var(--perigo); 
-  transform: scale(1.15); 
-}
-
-.btn-theme { 
-  padding: 8px 15px; 
-  border-radius: 8px; 
-  border: 1px solid var(--borda); 
-  background: var(--bg-card); 
-  color: var(--texto-principal); 
-  cursor: pointer; 
-  font-weight: 500;
-  transition: all 0.2s;
-}
-
-.btn-theme:hover {
-  border-color: var(--primaria);
-  color: var(--primaria);
-}
+/* Cores de Texto */
+.texto-sucesso { color: var(--sucesso); }
+.texto-perigo { color: var(--perigo); }
+.badge-entrada { color: var(--sucesso); font-weight: bold; }
+.badge-saida { color: var(--perigo); font-weight: bold; }
