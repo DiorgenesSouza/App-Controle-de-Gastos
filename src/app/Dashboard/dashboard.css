@@ -13,10 +13,11 @@
 }
 
 /* Variáveis para o Modo Escuro */
-.dark-mode {
+/* Adicionado o seletor direto e descendente para garantir a aplicação */
+.dark-mode, .dark-mode body {
   --bg-body: #121212;
   --bg-card: #1e1e1e;
-  --texto-principal: #e0e0e0;
+  --texto-principal: #e0e0e0; /* Cor clara para os textos principais */
   --texto-secundario: #b0b0b0;
   --borda: #333333;
   --sombra: rgba(0, 0, 0, 0.3);
@@ -31,6 +32,7 @@
   justify-content: center;
   padding: 30px 20px;
   transition: all 0.3s ease;
+  color: var(--texto-principal); /* Garante que o container herde a cor correta */
 }
 
 .dashboard-content {
@@ -60,6 +62,18 @@
   align-items: center;
   flex-wrap: wrap; 
   gap: 15px;
+}
+
+/* AJUSTE DO TÍTULO: Garante que o h1 mude de cor no modo escuro */
+.dashboard-header h1 {
+  color: var(--texto-principal);
+  margin: 0;
+  transition: color 0.3s ease;
+}
+
+.dashboard-header p {
+  color: var(--texto-secundario);
+  margin: 5px 0 0 0;
 }
 
 .saldo-card {
@@ -124,6 +138,12 @@
   flex-direction: column;
   gap: 6px;
   flex: 1 1 180px;
+}
+
+.input-field label {
+  color: var(--texto-principal);
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .input-field input, .input-field select {
@@ -208,7 +228,7 @@
 }
 
 .btn-export .pdf-icon {
-  font-size: 24px; /* PDF visivelmente maior */
+  font-size: 24px; 
   display: inline-block;
   line-height: 1;
 }
@@ -228,21 +248,35 @@ th, td { text-align: left; padding: 15px 12px; border-bottom: 1px solid var(--bo
   background: none; 
   border: none; 
   cursor: pointer; 
-  font-size: 28px; /* Tamanho grande fixo */
+  font-size: 28px; 
   transition: color 0.2s, transform 0.2s; 
   opacity: 0.8;
   color: #666;
-  display: inline-flex; /* Garante que o emoji ocupe o espaço correto */
+  display: inline-flex; 
   align-items: center;
   justify-content: center;
-  width: 44px; /* Área de clique e visualização maior */
+  width: 44px; 
   height: 44px;
 }
 
 .btn-delete:hover { 
   opacity: 1; 
   color: var(--perigo); 
-  transform: scale(1.15); /* Feedback visual sutil no hover */
+  transform: scale(1.15); 
 }
 
-.btn-theme { padding: 8px 15px; border-radius: 8px; border: 1px solid var(--borda); background: var(--bg-card); color: var(--texto-principal); cursor: pointer; font-weight: 500; }
+.btn-theme { 
+  padding: 8px 15px; 
+  border-radius: 8px; 
+  border: 1px solid var(--borda); 
+  background: var(--bg-card); 
+  color: var(--texto-principal); 
+  cursor: pointer; 
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-theme:hover {
+  border-color: var(--primaria);
+  color: var(--primaria);
+}

@@ -34,15 +34,16 @@ export class DashboardComponent implements OnInit {
   isDarkMode: boolean = false;
   percentualGasto: number = 0;
 
+  // Ajustado o tipo do valor para string para suportar a máscara visual sem erros de validação
   gastoForm = new FormGroup({
     descricao: new FormControl('', [Validators.required]),
-    valor: new FormControl<number | null>(null, [Validators.required, Validators.min(0.01)]),
+    valor: new FormControl('', [Validators.required]), 
     data: new FormControl('', [Validators.required]),
     tipo: new FormControl('', [Validators.required]),
     classificacao: new FormControl('', [Validators.required])
   });
 
-  // --- CONFIGURAÇÕES DE GRÁFICOS ---
+  // ... CONFIGURAÇÕES DE GRÁFICOS (Mantidas como no seu original) ...
   public barChartData: ChartConfiguration<'bar'>['data'] = {
     labels: [],
     datasets: [{ data: [], label: 'Valores (R$)', backgroundColor: '#3498db', borderColor: '#2980b9', borderWidth: 1, borderRadius: 5 }]
@@ -115,6 +116,7 @@ export class DashboardComponent implements OnInit {
     document.body.classList.toggle('dark-mode');
   }
 
+  // ... MÉTODOS DE GRÁFICOS (Mantidos como no seu original) ...
   gerarGraficoEvolucao() {
     const dias = Array.from({length: 31}, (_, i) => (i + 1).toString());
     let saldoAcumulado = 0;
@@ -186,9 +188,17 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  // --- LÓGICA DE SALVAR AJUSTADA ---
   salvarGasto() {
     if (this.gastoForm.valid) {
-      this.service.salvar(this.gastoForm.value).subscribe({
+      const dadosParaEnviar = { ...this.gastoForm.value };
+      
+      // Limpa a string de moeda (ex: "R$ 17,90" -> 17.9) para o Backend Java
+      if (dadosParaEnviar.valor) {
+        dadosParaEnviar.valor = dadosParaEnviar.valor.replace(/[^\d,]/g, '').replace(',', '.');
+      }
+
+      this.service.salvar(dadosParaEnviar).subscribe({
         next: () => {
           this.exibirSucesso = true;
           this.gastoForm.reset();
@@ -215,34 +225,33 @@ export class DashboardComponent implements OnInit {
     );
   }
 
-  // --- LÓGICA DE FORMATAÇÃO REVISADA ---
+  // --- FORMATAÇÃO CORRIGIDA (GARANTE O ZERO NO FINAL) ---
   formatarMoeda(event: any) {
     let valorRaw = event.target.value.replace(/\D/g, ''); 
     
     if (!valorRaw) {
-      this.gastoForm.get('valor')!.setValue(null);
+      this.gastoForm.get('valor')!.setValue('');
       return;
     }
 
-    // Transformar a string de números em decimal (ex: "17900" -> 179.00)
+    // "1790" vira 17.90
     const valorNumerico = Number(valorRaw) / 100;
 
-    // Formata visualmente para o input
+    // Formata com 2 casas decimais fixas
     const valorFormatado = valorNumerico.toLocaleString('pt-BR', { 
       style: 'currency', 
       currency: 'BRL',
       minimumFractionDigits: 2 
     });
 
-    // Atualiza o valor exibido no campo sem disparar novos eventos de input infinitos
+    // Atualiza o input visualmente
     event.target.value = valorFormatado;
     
-    // Atualiza o valor numérico puro no FormControll (o que vai para o JSON do banco)
-    this.gastoForm.get('valor')!.setValue(valorNumerico, { emitEvent: false });
-    this.gastoForm.get('valor')!.markAsDirty();
-    this.gastoForm.get('valor')!.updateValueAndValidity();
+    // Sincroniza com o formulário
+    this.gastoForm.get('valor')!.setValue(valorFormatado, { emitEvent: false });
   }
 
+  // ... EXPORTAÇÃO PDF (Mantida como no seu original) ...
   exportarPDF() {
     const doc = new jsPDF();
     const dataGeracao = new Date().toLocaleDateString('pt-BR');
