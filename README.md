@@ -1,59 +1,138 @@
-# ControleGastosFront
+# 📊 Painel de Controle Financeiro
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.0.
+Aplicação web desenvolvida para controle financeiro pessoal, permitindo o acompanhamento de entradas, saídas, saldo e análise de gastos de forma visual e intuitiva.
 
-## Development server
+---
 
-To start a local development server, run:
+## 🚀 Funcionalidades
+
+- ✅ Cadastro de lançamentos (entrada e saída)
+- ✅ Cálculo automático do saldo
+- ✅ Filtro por mês e ano
+- ✅ Busca por descrição
+- ✅ Dashboard com gráficos:
+  - 📈 Evolução do saldo
+  - 📊 Gastos por mês
+  - 🥧 Distribuição fixa vs variável
+  - 🍩 Saídas por categoria
+- ✅ Histórico completo de lançamentos
+- ✅ Modo escuro 🌙
+
+---
+
+## 🖼️ Preview da Aplicação
+
+![Dashboard Financeiro](./imagem/tela-1.png)
+
+>`
+
+---
+
+## 🛠️ Tecnologias Utilizadas
+
+- Angular
+- TypeScript
+- HTML5
+- CSS3
+- Chart.js (ou outra lib de gráfico que você usou)
+- RxJS
+
+---
+
+## 📂 Estrutura do Projeto
+
+```
+src/
+ ├── app/
+ │   ├── components/
+ │   ├── services/
+ │   ├── models/
+ │   └── pages/
+ ├── assets/
+ │   └── dashboard.png
+ └── environments/
+```
+
+---
+
+## ⚙️ Como rodar o projeto
+
+### 1️⃣ Clonar o repositório
+
+```bash
+git clone https://github.com/seu-usuario/seu-repositorio.git
+```
+
+### 2️⃣ Entrar na pasta
+
+```bash
+cd seu-repositorio
+```
+
+### 3️⃣ Instalar dependências
+
+```bash
+npm install
+```
+
+### 4️⃣ Rodar a aplicação
 
 ```bash
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+### 5️⃣ Acessar no navegador
 
-## Code scaffolding
+http://localhost:4200
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+---
 
-```bash
-ng generate component component-name
-```
+## 📊 Funcionalidades do Dashboard
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+O painel apresenta:
 
-```bash
-ng generate --help
-```
+- 💰 **Total de Entradas**
+- 💸 **Total de Saídas**
+- 📉 **Consumo do orçamento**
+- 📅 Controle por data
+- 📌 Classificação dos lançamentos (fixo/variável)
 
-## Building
+---
 
-To build the project run:
+## 📌 Melhorias Futuras
 
-```bash
-ng build
-```
+- 🔐 Sistema de login/autenticação
+- ☁️ Integração com backend/API
+- 📱 Responsividade mobile
+- 📤 Exportação de relatórios (PDF/Excel)
+- 🔔 Alertas de gastos
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+---
 
-## Running unit tests
+## 🤝 Contribuição
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+Sinta-se à vontade para contribuir:
 
-```bash
-ng test
-```
+1. Fork o projeto
+2. Crie uma branch (`git checkout -b feature/minha-feature`)
+3. Commit (`git commit -m 'Minha nova feature'`)
+4. Push (`git push origin feature/minha-feature`)
+5. Abra um Pull Request
 
-## Running end-to-end tests
+---
 
-For end-to-end (e2e) testing, run:
+## 📄 Licença
 
-```bash
-ng e2e
-```
+Este projeto está sob a licença MIT.
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+---
 
-## Additional Resources
+## 👨‍💻 Autor
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Desenvolvido por **Diorgenes Lima**
+
+---
+
+## ⭐ Se curtiu o projeto
+
+Deixe uma estrela ⭐ no repositório!
