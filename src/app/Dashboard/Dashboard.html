@@ -1,9 +1,9 @@
-<div class="dashboard-container" [ngClass]="{'dark-mode': isDarkMode}">
+<div class="dashboard-container" [class.dark-mode]="isDarkMode">
   <div class="dashboard-content">
     
     <header class="dashboard-header">
-      <div class="title-section">
-        <h1><span class="logo-icon">📊</span> Painel de Controle Financeiro</h1>
+      <div>
+        <h1>📊 Painel de Controle Financeiro</h1>
         <p>Acompanhamento de entradas e saídas em tempo real</p>
       </div>
       <div class="header-actions">
@@ -12,179 +12,150 @@
         </button>
         <div class="saldo-card">
           <span class="label-saldo">SALDO EM CONTA</span>
-          <div class="valor-saldo" [ngClass]="saldoAtual >= 0 ? 'texto-sucesso' : 'texto-perigo'">
+          <span class="valor-saldo" [ngClass]="saldoAtual >= 0 ? 'badge-entrada' : 'badge-saida'">
             {{ saldoAtual | currency:'BRL' }}
-          </div>
+          </span>
         </div>
       </div>
     </header>
 
-    <section class="card-branco alerta-container">
-      <div class="alerta-header">
-        <span>Consumo do Orçamento (Saídas vs Entradas) <strong>{{ percentualGasto | number:'1.0-0' }}%</strong> utilizado</span>
-      </div>
-      <div class="progress-bar-bg" style="background: var(--borda); height: 10px; border-radius: 5px; margin-top: 10px; overflow: hidden;">
-        <div class="progress-bar-fill" 
-             [style.width.%]="percentualGasto > 100 ? 100 : percentualGasto"
-             [style.background]="percentualGasto > 90 ? 'var(--perigo)' : (percentualGasto > 70 ? 'var(--atencao)' : 'var(--sucesso)')"
-             style="height: 100%; transition: width 0.5s ease;">
-        </div>
-      </div>
-    </section>
-
     <div class="resumo-grid">
       <div class="resumo-item entrada">
-        <span class="resumo-label">TOTAL ENTRADAS</span>
-        <div class="resumo-valor">
-          <span class="texto-sucesso">+</span> {{ totalEntradas | currency:'BRL' }}
-        </div>
+        <span class="resumo-label">TOTAL DE ENTRADAS</span>
+        <div class="resumo-valor">+ {{ totalEntradas | currency:'BRL' }}</div>
       </div>
-      
       <div class="resumo-item saida">
         <span class="resumo-label">TOTAL SAÍDAS</span>
-        <div class="resumo-valor">
-          <span class="texto-perigo">-</span> {{ totalSaidas | currency:'BRL' }}
-        </div>
+        <div class="resumo-valor">- {{ totalSaidas | currency:'BRL' }}</div>
       </div>
-      
       <div class="resumo-item saldo">
-        <span class="resumo-label">SALDO LÍQUIDO</span>
-        <div class="resumo-valor">
-          <span>💰</span> {{ saldoAtual | currency:'BRL' }}
+        <span class="resumo-label">CONSUMO DO ORÇAMENTO</span>
+        <div class="resumo-valor">{{ percentualGasto | number:'1.0-0' }}% utilizado</div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" 
+               [style.width.%]="percentualGasto > 100 ? 100 : percentualGasto"
+               [style.background-color]="percentualGasto > 80 ? 'var(--perigo)' : 'var(--sucesso)'">
+          </div>
         </div>
       </div>
     </div>
 
-    <section class="card-branco form-container">
-      <h3 class="form-title">Novo Lançamento Diário</h3>
-      
-      <div *ngIf="exibirSucesso" class="badge-entrada" style="margin-bottom: 15px; padding: 10px; text-align: center; background: rgba(34, 197, 94, 0.1); border-radius: 8px;">
-        ✅ Lançamento realizado com sucesso!
-      </div>
-
+    <section class="card-branco">
+      <h3>Novo Lançamento Diário</h3>
       <form [formGroup]="gastoForm" (ngSubmit)="salvarGasto()" class="form-grid">
-          <div class="input-field">
-            <label>Descrição</label>
-            <input type="text" formControlName="descricao" placeholder="Ex: Pagamento">
-          </div>
-          
-          <div class="input-field">
-            <label>Valor (R$)</label>
-            <input 
-              type="text" 
-              formControlName="valor"
-              placeholder="R$ 0,00"
-              (input)="formatarMoeda($event)">
-          </div>
-
-          <div class="input-field">
-            <label>Data</label>
-            <input type="date" formControlName="data">
-          </div>
-
-          <div class="input-field">
-            <label>Tipo</label>
-            <select formControlName="tipo">
-              <option value="">Selecione</option>
-              <option value="ENTRADA">Entrada</option>
-              <option value="SAIDA">Saída</option>
-            </select>
-          </div>
-
-          <div class="input-field">
-            <label>Classificação</label>
-            <select formControlName="classificacao">
-              <option value="">Selecione</option>
-              <option value="FIXA">Fixa</option>
-              <option value="VARIAVEL">Variável</option>
-            </select>
-          </div>
-
-          <button type="submit" [disabled]="!gastoForm.valid" class="btn-salvar">
+        <div class="input-field">
+          <label>Descrição</label>
+          <input type="text" formControlName="descricao" placeholder="Ex: Pagamento Aluguel">
+        </div>
+        <div class="input-field">
+          <label>Valor (R$)</label>
+          <input type="text" formControlName="valor" (input)="formatarMoeda($event)" placeholder="R$ 0,00">
+        </div>
+        <div class="input-field">
+          <label>Data</label>
+          <input type="date" formControlName="data">
+        </div>
+        <div class="input-field">
+          <label>Tipo</label>
+          <select formControlName="tipo">
+            <option value="" disabled selected>Selecione</option>
+            <option value="ENTRADA">Entrada</option>
+            <option value="SAIDA">Saída</option>
+          </select>
+        </div>
+        <div class="input-field">
+          <label>Classificação</label>
+          <select formControlName="classificacao">
+            <option value="" disabled selected>Selecione</option>
+            <option value="FIXA">Fixa</option>
+            <option value="VARIAVEL">Variável</option>
+          </select>
+        </div>
+        <div class="btn-container">
+          <button type="submit" class="btn-salvar" [disabled]="gastoForm.invalid">
             Salvar Lançamento
           </button>
+        </div>
       </form>
+      <p *ngIf="exibirSucesso" class="texto-sucesso" style="margin-top: 10px;">✅ Lançamento salvo com sucesso!</p>
     </section>
 
-    <div class="charts-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-      
-      <div class="card-branco chart-card">
-        <h3>Gastos por Mês</h3>
-        <div class="chart-container" style="height: 250px;">
-          <canvas baseChart [data]="barChartData" [options]="barChartOptions" type="bar"></canvas>
-        </div>
+    <div class="card-branco" style="display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap;">
+      <div style="display: flex; gap: 15px; align-items: center;">
+        <select [(ngModel)]="mesSelecionado" (change)="filtrarTransacoes()" class="input-field" style="width: 120px; height: 38px;">
+          <option *ngFor="let m of [0,1,2,3,4,5,6,7,8,9,10,11]" [value]="m">Mês {{ m + 1 }}</option>
+        </select>
+        <select [(ngModel)]="anoSelecionado" (change)="filtrarTransacoes()" class="input-field" style="width: 100px; height: 38px;">
+          <option value="2025">2025</option>
+          <option value="2026">2026</option>
+        </select>
+        <input type="text" [(ngModel)]="termoBusca" (input)="filtrarTransacoes()" placeholder="🔍 Buscar descrição..." 
+               style="height: 38px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--borda);">
       </div>
-
-      <div class="card-branco chart-card">
-        <h3>Evolução do Saldo</h3>
-        <div class="chart-container" style="height: 250px;">
-          <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" type="line"></canvas>
-        </div>
-      </div>
-
-      <div class="card-branco chart-card">
-        <h3>Fixa vs Variável</h3>
-        <div class="chart-container" style="height: 200px;">
-          <canvas baseChart [data]="categoriaPieChartData" [options]="pieChartOptions" type="pie"></canvas>
-        </div>
-        <div style="display: flex; justify-content: space-between; margin-top: 15px; font-size: 0.9em; font-weight: bold;">
-          <span style="color: #f59e0b;">Fixa: {{ totalGastoFixo | currency:'BRL' }}</span>
-          <span style="color: #8b5cf6;">Variável: {{ totalGastoVariavel | currency:'BRL' }}</span>
-        </div>
-      </div>
-
-      <div class="card-branco chart-card">
-        <h3>Saídas por Descrição</h3>
-        <div class="chart-container" style="height: 250px;">
-          <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" type="pie"></canvas>
-        </div>
-      </div>
-
+      <button class="btn-theme" (click)="exportarPDF()" style="background: var(--primaria); color: white; border: none;">
+        📥 Exportar Extrato PDF
+      </button>
     </div>
 
-    <div class="card-branco table-container" style="margin-top: 20px;">
-      <div class="filtros-container">
-        <div class="busca-wrapper">
-          <input type="text" [(ngModel)]="termoBusca" (input)="filtrarTransacoes()" placeholder="🔍 Buscar por descrição ou categoria...">
+    <div class="charts-grid">
+      <div class="card-branco">
+        <h3>Gastos por Mês</h3>
+        <div class="chart-wrapper">
+          <canvas baseChart [data]="barChartData" [options]="chartOptions" [type]="'bar'"></canvas>
         </div>
-        <button class="btn-export" (click)="exportarPDF()">
-          📄 Exportar PDF
-        </button>
       </div>
-      
-      <h3 class="table-title">📑 Extrato Detalhado</h3>
+
+      <div class="card-branco">
+        <h3>Evolução do Saldo</h3>
+        <div class="chart-wrapper">
+          <canvas baseChart [data]="lineChartData" [options]="chartOptions" [type]="'line'"></canvas>
+        </div>
+      </div>
+
+      <div class="card-branco">
+        <h3>Fixa vs Variável</h3>
+        <div class="chart-wrapper">
+          <canvas baseChart [data]="categoryPieData" [options]="chartOptions" [type]="'pie'"></canvas>
+        </div>
+      </div>
+
+      <div class="card-branco">
+        <h3>Saídas por Descrição</h3>
+        <div class="chart-wrapper">
+          <canvas baseChart [data]="descriptionPieData" [options]="chartOptions" [type]="'doughnut'"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-branco">
+      <h3>Histórico de Lançamentos</h3>
       <div class="table-responsive">
         <table>
           <thead>
             <tr>
-              <th>DATA</th>
-              <th>DESCRIÇÃO</th>
-              <th>CATEGORIA</th>
-              <th>TIPO</th>
-              <th>VALOR</th>
-              <th>AÇÕES</th>
+              <th>Data</th>
+              <th>Descrição</th>
+              <th>Categoria</th>
+              <th>Tipo</th>
+              <th>Valor</th>
+              <th style="text-align: center;">Ações</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let t of transacoesFiltradas" 
-                [ngClass]="{
-                  'linha-entrada': t.tipo?.toUpperCase() === 'ENTRADA',
-                  'linha-saida': t.tipo?.toUpperCase() === 'SAIDA',
-                  'gasto-alto': t.tipo?.toUpperCase() === 'SAIDA' && t.valor > 500
-                }">
+            <tr *ngFor="let t of transacoesFiltradas; trackBy: trackById">
               <td>{{ (t.dataHora || t.data) | date:'dd/MM/yyyy' }}</td>
-              <td>{{ t.descricao | uppercase }}</td>
+              <td class="text-upper">{{ t.descricao }}</td>
               <td>{{ t.classificacao }}</td>
               <td>
-                <span [ngClass]="t.tipo?.toUpperCase() === 'ENTRADA' ? 'badge-entrada' : 'badge-saida'">
+                <span [ngClass]="t.tipo === 'ENTRADA' ? 'badge-entrada' : 'badge-saida'">
                   {{ t.tipo }}
                 </span>
               </td>
-              <td [ngClass]="t.tipo?.toUpperCase() === 'ENTRADA' ? 'texto-sucesso' : 'texto-perigo'">
-                 {{ t.valor | currency:'BRL' }}
+              <td [ngClass]="t.tipo === 'ENTRADA' ? 'texto-sucesso' : 'texto-perigo'">
+                {{ t.valor | currency:'BRL' }}
               </td>
-              <td>
-                <button class="btn-delete" (click)="excluirTransacao(t.id)" title="Excluir">🗑️</button>
+              <td style="text-align: center;">
+                <button class="btn-delete" (click)="excluirTransacao(t.id)">🗑️</button>
               </td>
             </tr>
           </tbody>

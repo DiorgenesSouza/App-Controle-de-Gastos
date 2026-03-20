@@ -1,111 +1,125 @@
-/* --- 1. VARIÁVEIS E TEMA --- */
+/* --- VARIÁVEIS DE CORES (MODO CLARO) --- */
 :root {
+  --primaria: #3b82f6;
+  --sucesso: #22c55e;
+  --perigo: #ef4444;
+  --atencao: #f59e0b;
   --bg-body: #f8fafc;
   --bg-card: #ffffff;
   --texto-principal: #1e293b;
   --texto-secundario: #64748b;
   --borda: #e2e8f0;
-  --primaria: #3b82f6;
-  --sucesso: #22c55e;
-  --perigo: #ef4444;
-  --atencao: #f59e0b;
-  --fixa: #f59e0b;      /* Nova: Cor para Gastos Fixos */
-  --variavel: #8b5cf6;   /* Nova: Cor para Gastos Variáveis */
   --sombra: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --bg-input: #ffffff;
 }
 
+/* --- VARIÁVEIS DE CORES (MODO ESCURO) --- */
 .dark-mode {
-  --bg-body: #0f172a;
-  --bg-card: #1e293b;
+  --bg-body: #0f172a;       /* Fundo azul marinho profundo */
+  --bg-card: #1e293b;       /* Card azul ardósia */
   --texto-principal: #f8fafc;
   --texto-secundario: #94a3b8;
   --borda: #334155;
-  --fixa: #fbbf24;
-  --variavel: #a78bfa;
+  --bg-input: #0f172a;
+  --sombra: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
 }
 
-/* --- 2. LAYOUT E CABEÇALHO --- */
 .dashboard-container {
   background-color: var(--bg-body);
-  color: var(--texto-principal);
   min-height: 100vh;
-  padding: 30px 20px;
-  transition: all 0.3s ease;
+  padding: 20px;
+  color: var(--texto-principal);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .dashboard-content {
   max-width: 1200px;
   margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
 }
 
+/* --- CABEÇALHO E SALDO --- */
 .dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  gap: 20px;
 }
 
 .header-actions {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 10px;
+  align-items: center;
+  gap: 20px;
 }
 
 .saldo-card {
   background: var(--bg-card);
-  padding: 12px 20px;
-  border-radius: 12px;
-  box-shadow: var(--sombra);
+  padding: 10px 20px;
+  border-radius: 10px;
   border: 1px solid var(--borda);
   text-align: right;
-  min-width: 200px;
+  box-shadow: var(--sombra);
 }
 
-.valor-saldo {
-  font-size: 24px;
-  font-weight: 800;
+.label-saldo {
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--texto-secundario);
   display: block;
 }
 
-/* --- 3. CARDS E RESUMO --- */
-.resumo-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+.valor-saldo {
+  font-size: 1.4rem;
+  font-weight: 800;
 }
 
-.resumo-item {
+/* --- BOTÃO TEMA --- */
+.btn-theme {
   background: var(--bg-card);
-  padding: 20px;
-  border-radius: 12px;
-  border-left: 6px solid #ccc;
-  box-shadow: var(--sombra);
+  border: 1px solid var(--borda);
+  color: var(--texto-principal);
+  padding: 8px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
   transition: transform 0.2s;
 }
 
-.resumo-item:hover { transform: translateY(-3px); }
-.resumo-item.entrada { border-left-color: var(--sucesso); }
-.resumo-item.saida { border-left-color: var(--perigo); }
-.resumo-item.saldo { border-left-color: var(--primaria); }
+.btn-theme:hover { transform: scale(1.05); }
 
-/* --- 4. FORMULÁRIO --- */
+/* --- CARDS PADRÃO --- */
 .card-branco {
   background: var(--bg-card);
   padding: 25px;
   border-radius: 12px;
   box-shadow: var(--sombra);
   border: 1px solid var(--borda);
+  margin-bottom: 20px;
 }
 
+/* --- BARRA DE PROGRESSO --- */
+.progress-bar-bg {
+  background: var(--borda);
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  transition: width 0.5s ease-in-out;
+}
+
+/* --- FORMULÁRIO --- */
 .form-grid {
   display: flex;
   flex-wrap: wrap; 
   gap: 15px;
-  align-items: flex-end;
+  align-items: flex-end; 
 }
 
 .input-field { 
@@ -117,7 +131,7 @@
 }
 
 .input-field label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--texto-secundario);
 }
@@ -127,7 +141,7 @@
   padding: 0 12px;
   border-radius: 8px;
   border: 1px solid var(--borda);
-  background: var(--bg-body);
+  background: var(--bg-input);
   color: var(--texto-principal);
   outline: none;
   transition: border-color 0.2s;
@@ -137,153 +151,87 @@
 
 .btn-salvar {
   height: 42px;
-  background: var(--sucesso);
-  color: white;
+  background-color: var(--sucesso) !important;
+  color: #ffffff !important;
   border: none;
   border-radius: 8px;
   font-weight: bold;
   cursor: pointer;
   padding: 0 25px;
-  min-width: 160px;
-  transition: all 0.2s;
+  width: 100%;
+  transition: opacity 0.2s;
 }
 
-.btn-salvar:disabled {
-  background: #cbd5e1 !important;
-  color: #64748b;
-  cursor: not-allowed;
-  opacity: 0.7;
-}
+.btn-salvar:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* --- 5. GRÁFICOS (NOVA SEÇÃO) --- */
-.charts-grid {
+/* --- GRIDS DE LAYOUT --- */
+.resumo-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 20px;
+  margin-bottom: 20px;
 }
 
-.chart-card {
-  display: flex;
-  flex-direction: column;
-  min-height: 380px;
+.resumo-item {
+  background: var(--bg-card);
+  padding: 20px;
+  border-radius: 12px;
+  border-left: 5px solid var(--borda);
+  box-shadow: var(--sombra);
 }
 
-.chart-card h3 {
-  font-size: 16px;
-  font-weight: 700;
-  margin-bottom: 15px;
-  color: var(--texto-secundario);
-  border-bottom: 1px solid var(--borda);
-  padding-bottom: 10px;
-}
+.resumo-item.entrada { border-left-color: var(--sucesso); }
+.resumo-item.saida { border-left-color: var(--perigo); }
+.resumo-item.saldo { border-left-color: var(--atencao); }
 
-.chart-container {
-  flex-grow: 1;
-  position: relative;
-}
+.resumo-label { font-size: 12px; font-weight: bold; color: var(--texto-secundario); }
+.resumo-valor { font-size: 1.5rem; font-weight: 700; margin-top: 5px; }
 
-/* --- 6. TABELA E FILTROS --- */
-.filtros-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 20px 0;
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   gap: 20px;
 }
 
-.busca-wrapper { flex: 1; position: relative; }
-.busca-wrapper input {
-  width: 100%;
-  max-width: 400px;
-  padding: 10px 15px;
-  border-radius: 10px;
-  border: 1px solid var(--borda);
-  background: var(--bg-card);
-  color: var(--texto-principal);
-}
+.chart-wrapper { height: 300px; position: relative; }
 
-.btn-export {
-  background: var(--bg-card);
-  border: 1px solid var(--borda);
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  color: var(--texto-principal);
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s;
-}
-
-.btn-export:hover { background: var(--bg-body); border-color: var(--primaria); }
-
-.table-responsive { overflow-x: auto; width: 100%; }
-table { width: 100%; border-collapse: collapse; min-width: 800px; }
-
+/* --- TABELA --- */
+.table-responsive { overflow-x: auto; border-radius: 8px; }
+table { width: 100%; border-collapse: collapse; }
 th { 
-  padding: 15px; 
   text-align: left; 
+  padding: 15px; 
+  background: rgba(0,0,0,0.05); 
   color: var(--texto-secundario); 
-  border-bottom: 2px solid var(--borda);
-  font-size: 13px;
+  font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
-td { padding: 15px; border-bottom: 1px solid var(--borda); font-size: 15px; }
+.dark-mode th { background: rgba(255,255,255,0.05); }
 
-/* --- 7. CLASSES DE DESTAQUE DINÂMICO --- */
-.linha-entrada { background-color: rgba(34, 197, 94, 0.04); }
-.linha-saida { background-color: rgba(239, 68, 68, 0.02); }
+td { padding: 15px; border-bottom: 1px solid var(--borda); font-size: 14px; }
 
-.gasto-alto {
-  background-color: rgba(239, 68, 68, 0.08) !important;
+/* Badges e utilitários */
+.texto-sucesso { color: var(--sucesso); }
+.texto-perigo { color: var(--perigo); }
+.badge-entrada, .badge-saida {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: bold;
 }
-
-.gasto-alto td:nth-child(5) {
-  color: var(--perigo);
-  font-weight: 900;
-}
-
-.dark-mode .linha-entrada { background-color: rgba(34, 197, 94, 0.08); }
-.dark-mode .linha-saida { background-color: rgba(239, 68, 68, 0.04); }
-.dark-mode .gasto-alto { background-color: rgba(239, 68, 68, 0.15) !important; }
-
-/* Ajuste de colunas da tabela */
-td:nth-child(2) { font-weight: 600; width: 35%; } 
-td:nth-child(5) { font-weight: 800; text-align: right; } 
-th:nth-child(5) { text-align: right; }
+.badge-entrada { background: rgba(34, 197, 94, 0.1); color: var(--sucesso); }
+.badge-saida { background: rgba(239, 68, 68, 0.1); color: var(--perigo); }
 
 .btn-delete {
   background: none;
   border: none;
-  color: var(--perigo);
   cursor: pointer;
+  font-size: 18px;
   opacity: 0.6;
-  transition: 0.2s;
+  transition: opacity 0.2s;
 }
-.btn-delete:hover { opacity: 1; transform: scale(1.1); }
+.btn-delete:hover { opacity: 1; }
 
-/* --- 8. CORES DE TEXTO E CATEGORIAS --- */
-.texto-sucesso { color: var(--sucesso) !important; }
-.texto-perigo { color: var(--perigo) !important; }
-.texto-fixa { color: var(--fixa) !important; font-weight: 700; }
-.texto-variavel { color: var(--variavel) !important; font-weight: 700; }
-
-.btn-theme {
-  background: var(--bg-card);
-  color: var(--texto-principal);
-  border: 1px solid var(--borda);
-  padding: 8px 15px;
-  border-radius: 20px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  transition: 0.2s;
-}
-
-.btn-theme:hover {
-  background: var(--primaria);
-  color: white;
-}
+.text-center { text-align: center; }
+.text-upper { text-transform: uppercase; }
