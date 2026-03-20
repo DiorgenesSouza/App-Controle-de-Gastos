@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { BaseChartDirective } from 'ng2-charts';
 import { ReactiveFormsModule, FormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 
-// Import corrigido para evitar erro de módulo
+// Import corrigido para evitar o erro TS2306
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -54,7 +54,7 @@ export class DashboardComponent implements OnInit {
     classificacao: new FormControl<'FIXA' | 'VARIAVEL' | ''>('', { nonNullable: true, validators: [Validators.required] })
   });
 
-  /* --- CONFIGURAÇÕES DOS 4 GRÁFICOS --- */
+  /* --- CONFIGURAÇÕES DOS GRÁFICOS --- */
 
   public barChartData: ChartConfiguration<'bar'>['data'] = {
     labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
@@ -106,7 +106,7 @@ export class DashboardComponent implements OnInit {
         this.listaTransacoes = dados.map(d => ({
           ...d, 
           valor: typeof d.valor === 'string' ? parseFloat(d.valor.replace(',', '.')) : Number(d.valor) || 0
-        })).sort((a, b) => new Date(a.dataHora || a.data).getTime() - new Date(b.dataHora || b.data).getTime());
+        }));
         this.filtrarTransacoes();
       }
     });
@@ -132,7 +132,7 @@ export class DashboardComponent implements OnInit {
   }
 
   private gerarGraficos() {
-    // 1. Barras Anuais
+    // 1. Barras Anuais (Saídas)
     const valoresAnuais = new Array(12).fill(0);
     this.listaTransacoes.forEach(t => {
       if (t.tipo === 'SAIDA') {
@@ -142,24 +142,29 @@ export class DashboardComponent implements OnInit {
     });
     this.barChartData = { ...this.barChartData, datasets: [{ ...this.barChartData.datasets[0], data: valoresAnuais }] };
 
-    // 2. Evolução de Saldo (Linha)
+    // 2. Evolução de Saldo (Linha) - Ordenação Corrigida
     let saldoAcumulado = 0;
     const labelsEvolucao: string[] = [];
     const dadosEvolucao: number[] = [];
-    // Ordenar por data crescente para o gráfico de linha
-    [...this.transacoesFiltradas].reverse().forEach(t => {
+    
+    // Ordena do mais antigo para o mais novo antes de calcular o saldo
+    const ordenadas = [...this.transacoesFiltradas].sort((a, b) => 
+      new Date(a.dataHora || a.data).getTime() - new Date(b.dataHora || b.data).getTime()
+    );
+
+    ordenadas.forEach(t => {
       saldoAcumulado += (t.tipo === 'ENTRADA' ? t.valor : -t.valor);
       labelsEvolucao.push(new Date(t.dataHora || t.data).toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'}));
       dadosEvolucao.push(saldoAcumulado);
     });
     this.lineChartData = { labels: labelsEvolucao, datasets: [{ ...this.lineChartData.datasets[0], data: dadosEvolucao }] };
 
-    // 3. Fixa vs Variável
+    // 3. Fixa vs Variável (Pizza)
     const fixa = this.transacoesFiltradas.filter(t => t.tipo === 'SAIDA' && t.classificacao === 'FIXA').reduce((acc, t) => acc + t.valor, 0);
     const variavel = this.transacoesFiltradas.filter(t => t.tipo === 'SAIDA' && t.classificacao === 'VARIAVEL').reduce((acc, t) => acc + t.valor, 0);
     this.categoryPieData = { labels: ['Fixa', 'Variável'], datasets: [{ ...this.categoryPieData.datasets[0], data: [fixa, variavel] }] };
 
-    // 4. Saídas por Descrição
+    // 4. Saídas por Descrição (Rosca)
     const agrupadoDesc: { [key: string]: number } = {};
     this.transacoesFiltradas.filter(t => t.tipo === 'SAIDA').forEach(t => {
       const desc = t.descricao.toUpperCase();
@@ -217,7 +222,7 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  // FUNÇÃO QUE RESOLVE O ERRO DO HTML
+  // Função essencial para evitar erro no template
   trackById(index: number, item: any) {
     return item.id;
   }
