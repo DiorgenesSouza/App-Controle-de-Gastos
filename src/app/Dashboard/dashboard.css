@@ -40,39 +40,34 @@
 .dashboard-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
+  margin-bottom: 10px;
 }
 
 .header-actions {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 15px;
+  gap: 10px;
 }
 
 .saldo-card {
   background: var(--bg-card);
-  padding: 15px 25px;
+  padding: 12px 20px;
   border-radius: 12px;
   box-shadow: var(--sombra);
   border: 1px solid var(--borda);
   text-align: right;
+  min-width: 200px;
 }
 
 .valor-saldo {
   font-size: 24px;
   font-weight: 800;
+  display: block;
 }
 
 /* --- 3. CARDS E RESUMO --- */
-.card-branco {
-  background: var(--bg-card);
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: var(--sombra);
-  border: 1px solid var(--borda);
-}
-
 .resumo-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -85,15 +80,25 @@
   border-radius: 12px;
   border-left: 6px solid #ccc;
   box-shadow: var(--sombra);
+  transition: transform 0.2s;
 }
 
+.resumo-item:hover { transform: translateY(-3px); }
 .resumo-item.entrada { border-left-color: var(--sucesso); }
 .resumo-item.saida { border-left-color: var(--perigo); }
 .resumo-item.saldo { border-left-color: var(--primaria); }
 
-/* --- 4. FORMULÁRIO (AJUSTADO PARA O BOTÃO APARECER) --- */
+/* --- 4. FORMULÁRIO --- */
+.card-branco {
+  background: var(--bg-card);
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: var(--sombra);
+  border: 1px solid var(--borda);
+}
+
 .form-grid {
-  display: flex; /* Mudança para flex para garantir que o botão não suma */
+  display: flex;
   flex-wrap: wrap; 
   gap: 15px;
   align-items: flex-end;
@@ -102,23 +107,32 @@
 .input-field { 
   display: flex; 
   flex-direction: column; 
-  gap: 5px; 
-  flex: 1; /* Faz os campos crescerem */
-  min-width: 160px; /* Garante que não fiquem muito pequenos */
+  gap: 8px; 
+  flex: 1;
+  min-width: 180px; 
+}
+
+.input-field label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--texto-secundario);
 }
 
 .input-field input, .input-field select {
-  height: 40px;
+  height: 42px;
   padding: 0 12px;
   border-radius: 8px;
   border: 1px solid var(--borda);
   background: var(--bg-body);
   color: var(--texto-principal);
-  width: 100%;
+  outline: none;
+  transition: border-color 0.2s;
 }
 
+.input-field input:focus { border-color: var(--primaria); }
+
 .btn-salvar {
-  height: 40px;
+  height: 42px;
   background: var(--sucesso);
   color: white;
   border: none;
@@ -126,51 +140,107 @@
   font-weight: bold;
   cursor: pointer;
   padding: 0 25px;
-  min-width: 150px; /* Garante que o botão tenha um tamanho mínimo */
-  transition: opacity 0.3s;
+  min-width: 160px;
+  transition: all 0.2s;
 }
 
 .btn-salvar:disabled {
-  background: #cbd5e1; /* Cor cinza para quando estiver desabilitado */
-  cursor: not-allowed;
+  background: #cbd5e1 !important;
   color: #64748b;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
-.btn-salvar:hover:not(:disabled) {
-  filter: brightness(0.9);
-}
-
-/* --- 5. TABELA E PDF --- */
+/* --- 5. TABELA E FILTROS --- */
 .filtros-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin: 20px 0;
+  gap: 20px;
 }
 
+.busca-wrapper { flex: 1; position: relative; }
 .busca-wrapper input {
-  width: 300px;
+  width: 100%;
+  max-width: 400px;
   padding: 10px 15px;
-  border-radius: 20px;
+  border-radius: 10px;
   border: 1px solid var(--borda);
-  background: var(--bg-body);
+  background: var(--bg-card);
+  color: var(--texto-principal);
 }
 
 .btn-export {
   background: var(--bg-card);
   border: 1px solid var(--borda);
-  padding: 8px 15px;
+  padding: 10px 20px;
   border-radius: 8px;
   cursor: pointer;
   color: var(--texto-principal);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
 }
 
-table { width: 100%; border-collapse: collapse; }
-th { padding: 12px; text-align: left; color: var(--texto-secundario); border-bottom: 2px solid var(--borda); }
-td { padding: 12px; border-bottom: 1px solid var(--borda); }
+.btn-export:hover { background: var(--bg-body); border-color: var(--primaria); }
 
-/* Cores de Texto */
-.texto-sucesso { color: var(--sucesso); }
-.texto-perigo { color: var(--perigo); }
-.badge-entrada { color: var(--sucesso); font-weight: bold; }
-.badge-saida { color: var(--perigo); font-weight: bold; }
+.table-responsive { overflow-x: auto; width: 100%; }
+table { width: 100%; border-collapse: collapse; min-width: 800px; }
+
+th { 
+  padding: 15px; 
+  text-align: left; 
+  color: var(--texto-secundario); 
+  border-bottom: 2px solid var(--borda);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+td { padding: 15px; border-bottom: 1px solid var(--borda); font-size: 15px; }
+
+/* --- 6. CLASSES DE DESTAQUE DINÂMICO --- */
+.linha-entrada {
+  background-color: rgba(34, 197, 94, 0.04);
+}
+
+.linha-saida {
+  background-color: rgba(239, 68, 68, 0.02);
+}
+
+/* Gasto alto: Vermelho mais visível e texto em negrito */
+.gasto-alto {
+  background-color: rgba(239, 68, 68, 0.08) !important;
+}
+
+.gasto-alto td:nth-child(5) {
+  color: var(--perigo);
+  font-weight: 900;
+}
+
+/* Dark Mode Adaptação para destaques */
+.dark-mode .linha-entrada { background-color: rgba(34, 197, 94, 0.08); }
+.dark-mode .linha-saida { background-color: rgba(239, 68, 68, 0.04); }
+.dark-mode .gasto-alto { background-color: rgba(239, 68, 68, 0.15) !important; }
+
+/* Ajuste de colunas da tabela */
+td:nth-child(2) { font-weight: 600; width: 35%; } 
+td:nth-child(5) { font-weight: 800; text-align: right; } 
+th:nth-child(5) { text-align: right; }
+
+.btn-delete {
+  background: none;
+  border: none;
+  color: var(--perigo);
+  cursor: pointer;
+  opacity: 0.6;
+  transition: 0.2s;
+}
+.btn-delete:hover { opacity: 1; transform: scale(1.1); }
+
+/* Cores de Texto Dinâmicas */
+.texto-sucesso { color: var(--sucesso) !important; }
+.texto-perigo { color: var(--perigo) !important; }

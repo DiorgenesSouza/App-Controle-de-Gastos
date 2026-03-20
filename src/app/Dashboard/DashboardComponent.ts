@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChildren, QueryList, ChangeDetectorRef } from '@angular/core';
 import { TransacaoService } from '../services/transacao';
-import { ChartConfiguration, ChartOptions, Chart, ChartType } from 'chart.js';
+import { ChartConfiguration, ChartOptions, Chart } from 'chart.js';
 import { registerables } from 'chart.js';
 import { CommonModule } from '@angular/common'; 
 import { BaseChartDirective } from 'ng2-charts';
@@ -42,20 +42,16 @@ export class DashboardComponent implements OnInit {
     classificacao: new FormControl('', [Validators.required])
   });
 
-  // CONFIGURAÇÕES DOS GRÁFICOS
+  // CONFIGURAÇÕES DOS GRÁFICOS - Ajustadas para responsividade e cores dinâmicas
   public barChartData: ChartConfiguration<'bar'>['data'] = {
     labels: [],
-    datasets: [{ data: [], label: 'Gastos por Mês (R$)', backgroundColor: '#3498db', borderRadius: 5 }]
+    datasets: [{ data: [], label: 'Gastos por Mês (R$)', backgroundColor: '#3b82f6', borderRadius: 5 }]
   };
 
   public barChartOptions: ChartOptions<'bar'> = {
     responsive: true,
     maintainAspectRatio: false,
-    scales: { 
-      y: { beginAtZero: true, ticks: { color: '#2c3e50' }, grid: { color: 'rgba(0,0,0,0.1)' } },
-      x: { ticks: { color: '#2c3e50' }, grid: { display: false } }
-    },
-    plugins: { legend: { labels: { color: '#2c3e50' } } }
+    plugins: { legend: { labels: { color: '#64748b' } } }
   };
 
   public lineChartData: ChartConfiguration<'line'>['data'] = {
@@ -63,33 +59,33 @@ export class DashboardComponent implements OnInit {
     datasets: [{ 
       data: [], 
       label: 'Evolução do Saldo (R$)', 
-      borderColor: '#3498db', 
-      backgroundColor: 'rgba(52, 152, 219, 0.2)', 
+      borderColor: '#3b82f6', 
+      backgroundColor: 'rgba(59, 130, 246, 0.1)', 
       fill: true,
-      tension: 0.4 
+      tension: 0.3,
+      pointRadius: 4
     }]
   };
 
-  // Criado para evitar erro de referência no HTML linha 119
   public lineChartOptions: ChartOptions<'line'> = {
     responsive: true,
     maintainAspectRatio: false,
-    scales: { 
-      y: { ticks: { color: '#2c3e50' }, grid: { color: 'rgba(0,0,0,0.1)' } },
-      x: { ticks: { color: '#2c3e50' } }
+    scales: {
+      y: { beginAtZero: false, grid: { color: 'rgba(0,0,0,0.05)' } },
+      x: { grid: { display: false } }
     },
-    plugins: { legend: { labels: { color: '#2c3e50' } } }
+    plugins: { legend: { display: true } }
   };
 
   public pieChartData: ChartConfiguration<'pie'>['data'] = {
     labels: [],
-    datasets: [{ data: [], backgroundColor: ['#3498db', '#f1c40f', '#e74c3c', '#2ecc71', '#9b59b6'] }]
+    datasets: [{ data: [], backgroundColor: ['#3b82f6', '#22c55e', '#ef4444', '#f59e0b', '#8b5cf6'] }]
   };
 
   public pieChartOptions: ChartOptions<'pie'> = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: { legend: { position: 'bottom', labels: { color: '#2c3e50' } } }
+    plugins: { legend: { position: 'bottom' } }
   };
 
   constructor(private service: TransacaoService, private cdr: ChangeDetectorRef) {}
@@ -101,9 +97,12 @@ export class DashboardComponent implements OnInit {
   carregarDados() {
     this.service.listar().subscribe({
       next: (dados) => {
-        this.listaTransacoes = dados;
-        this.transacoesFiltradas = [...dados];
-        this.atualizarMetricas(dados);
+        // Ordenação global por data para garantir consistência em todos os cálculos
+        this.listaTransacoes = dados.sort((a, b) => 
+          new Date(a.dataHora || a.data).getTime() - new Date(b.dataHora || b.data).getTime()
+        );
+        this.transacoesFiltradas = [...this.listaTransacoes];
+        this.atualizarMetricas(this.listaTransacoes);
         this.gerarGraficos();
       },
       error: (err) => console.error('Erro ao buscar:', err)
@@ -133,7 +132,6 @@ export class DashboardComponent implements OnInit {
 
   salvarGasto() {
     if (this.gastoForm.valid) {
-      // Limpeza simples para converter "R$ 10,00" em 10.00 antes de enviar
       const valorLimpo = this.gastoForm.value.valor?.toString().replace(/[R$\s.]/g, '').replace(',', '.');
       const payload = { ...this.gastoForm.value, valor: Number(valorLimpo) };
 
@@ -159,9 +157,11 @@ export class DashboardComponent implements OnInit {
   }
 
   filtrarTransacoes() {
+    const termo = this.termoBusca.toLowerCase();
     this.transacoesFiltradas = this.listaTransacoes.filter(t => 
-      t.descricao?.toLowerCase().includes(this.termoBusca.toLowerCase()) ||
-      t.classificacao?.toLowerCase().includes(this.termoBusca.toLowerCase())
+      t.descricao?.toLowerCase().includes(termo) ||
+      t.classificacao?.toLowerCase().includes(termo) ||
+      t.tipo?.toLowerCase().includes(termo)
     );
   }
 
@@ -169,15 +169,18 @@ export class DashboardComponent implements OnInit {
     this.isDarkMode = !this.isDarkMode;
     document.body.classList.toggle('dark-mode');
     
-    const corTexto = this.isDarkMode ? '#e0e0e0' : '#2c3e50';
-    const corGrade = this.isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+    const corTexto = this.isDarkMode ? '#f8fafc' : '#1e293b';
+    const corGrade = this.isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)';
 
-    // RESOLUÇÃO TS4111: Atualizando opções de forma segura
     const updateOptions = (options: any) => {
       if (options.scales) {
-        if (options.scales['y']?.ticks) options.scales['y'].ticks.color = corTexto;
-        if (options.scales['y']?.grid) options.scales['y'].grid.color = corGrade;
-        if (options.scales['x']?.ticks) options.scales['x'].ticks.color = corTexto;
+        if (options.scales.y) {
+          options.scales.y.ticks = { ...options.scales.y.ticks, color: corTexto };
+          options.scales.y.grid = { ...options.scales.y.grid, color: corGrade };
+        }
+        if (options.scales.x) {
+          options.scales.x.ticks = { ...options.scales.x.ticks, color: corTexto };
+        }
       }
       if (options.plugins?.legend?.labels) {
         options.plugins.legend.labels.color = corTexto;
@@ -192,74 +195,63 @@ export class DashboardComponent implements OnInit {
   }
 
   exportarPDF() {
-  const doc = new jsPDF();
-  
-  // Título do Documento
-  doc.setFontSize(18);
-  doc.text('Relatório Financeiro Detalhado', 14, 20);
-  doc.setFontSize(10);
-  doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 28);
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text('Relatório Financeiro Detalhado', 14, 20);
+    doc.setFontSize(10);
+    doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 28);
+    doc.text(`Saldo Atual: ${this.saldoAtual.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`, 14, 34);
 
-  autoTable(doc, {
-    startY: 35,
-    head: [['DATA', 'DESCRIÇÃO', 'CATEGORIA', 'TIPO', 'VALOR']],
-    body: this.transacoesFiltradas.map(t => [
-      // Formata a data para o padrão brasileiro no PDF
-      new Date(t.dataHora || t.data).toLocaleDateString('pt-BR'),
-      t.descricao?.toUpperCase() || '',
-      t.classificacao || '',
-      t.tipo || '',
-      // Garante que o valor apareça como moeda no PDF
-      Number(t.valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-    ]),
-    headStyles: { 
-      fillColor: [52, 152, 219], // Azul padrão
-      textColor: [255, 255, 255],
-      fontStyle: 'bold' 
-    },
-    alternateRowStyles: { 
-      fillColor: [245, 245, 245] 
-    },
-    margin: { top: 35 }
-  });
+    autoTable(doc, {
+      startY: 40,
+      head: [['DATA', 'DESCRIÇÃO', 'CATEGORIA', 'TIPO', 'VALOR']],
+      body: this.transacoesFiltradas.map(t => [
+        new Date(t.dataHora || t.data).toLocaleDateString('pt-BR'),
+        t.descricao?.toUpperCase() || '',
+        t.classificacao || '',
+        t.tipo || '',
+        Number(t.valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+      ]),
+      headStyles: { fillColor: [59, 130, 246], fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [248, 250, 252] }
+    });
 
-  doc.save('relatorio_financeiro.pdf');
-}
+    doc.save('relatorio_financeiro.pdf');
+  }
 
   private renderizarGraficos() {
     this.cdr.detectChanges();
     if (this.charts) {
-      this.charts.forEach(chart => {
-        chart.update();
-      });
+      this.charts.forEach(chart => chart.update());
     }
   }
 
+  // CORREÇÃO DO GRÁFICO DE EVOLUÇÃO (Elimina o "buraco" e as quedas para zero)
   gerarGraficoEvolucao() {
-    const dias = Array.from({length: 31}, (_, i) => (i + 1).toString());
+    const labels: string[] = [];
+    const dadosEvolucao: number[] = [];
     let saldoAcumulado = 0;
-    const evolucao = new Array(31).fill(null);
-    
-    const transacoesOrdenadas = [...this.listaTransacoes].sort((a, b) => 
-      new Date(a.dataHora || a.data).getTime() - new Date(b.dataHora || b.data).getTime()
-    );
 
-    transacoesOrdenadas.forEach(t => {
-      const data = new Date(t.dataHora || t.data);
-      const dia = data.getDate() - 1;
-      saldoAcumulado += t.tipo?.toUpperCase() === 'ENTRADA' ? Number(t.valor) : -Number(t.valor);
-      if(dia >= 0 && dia < 31) evolucao[dia] = saldoAcumulado;
+    // Criamos um mapa para consolidar o saldo por dia
+    const saldoPorDia = new Map<string, number>();
+
+    this.listaTransacoes.forEach(t => {
+      const dataStr = new Date(t.dataHora || t.data).toLocaleDateString('pt-BR');
+      const valor = t.tipo?.toUpperCase() === 'ENTRADA' ? Number(t.valor) : -Number(t.valor);
+      
+      saldoAcumulado += valor;
+      saldoPorDia.set(dataStr, saldoAcumulado);
     });
 
-    let ultimoSaldo = 0;
-    for (let i = 0; i < evolucao.length; i++) {
-      if (evolucao[i] === null) evolucao[i] = ultimoSaldo;
-      else ultimoSaldo = evolucao[i];
-    }
+    // Extraímos os dados do mapa (que já está ordenado por causa da ordenação da lista inicial)
+    saldoPorDia.forEach((valor, data) => {
+      labels.push(data);
+      dadosEvolucao.push(valor);
+    });
 
     this.lineChartData = {
-      labels: dias,
-      datasets: [{ ...this.lineChartData.datasets[0], data: evolucao }]
+      labels: labels,
+      datasets: [{ ...this.lineChartData.datasets[0], data: dadosEvolucao }]
     };
     this.renderizarGraficos();
   }
@@ -291,7 +283,7 @@ export class DashboardComponent implements OnInit {
 
     this.barChartData = { 
       labels: meses, 
-      datasets: [{ ...this.barChartData.datasets[0], data: [...valores] }] 
+      datasets: [{ ...this.barChartData.datasets[0], data: valores }] 
     };
     this.renderizarGraficos();
   }
