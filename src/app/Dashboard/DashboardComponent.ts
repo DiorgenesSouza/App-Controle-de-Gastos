@@ -42,7 +42,7 @@ export class DashboardComponent implements OnInit {
     classificacao: new FormControl('', [Validators.required])
   });
 
-  // CONFIGURAÇÕES DOS GRÁFICOS - Ajustadas para responsividade e cores dinâmicas
+  // CONFIGURAÇÕES DOS GRÁFICOS
   public barChartData: ChartConfiguration<'bar'>['data'] = {
     labels: [],
     datasets: [{ data: [], label: 'Gastos por Mês (R$)', backgroundColor: '#3b82f6', borderRadius: 5 }]
@@ -97,7 +97,6 @@ export class DashboardComponent implements OnInit {
   carregarDados() {
     this.service.listar().subscribe({
       next: (dados) => {
-        // Ordenação global por data para garantir consistência em todos os cálculos
         this.listaTransacoes = dados.sort((a, b) => 
           new Date(a.dataHora || a.data).getTime() - new Date(b.dataHora || b.data).getTime()
         );
@@ -196,27 +195,65 @@ export class DashboardComponent implements OnInit {
 
   exportarPDF() {
     const doc = new jsPDF();
+    
     doc.setFontSize(18);
     doc.text('Relatório Financeiro Detalhado', 14, 20);
     doc.setFontSize(10);
     doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 28);
     doc.text(`Saldo Atual: ${this.saldoAtual.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`, 14, 34);
 
-    autoTable(doc, {
-      startY: 40,
-      head: [['DATA', 'DESCRIÇÃO', 'CATEGORIA', 'TIPO', 'VALOR']],
-      body: this.transacoesFiltradas.map(t => [
+    let totalNaTabela = 0;
+    const corpoTabela = this.transacoesFiltradas.map(t => {
+      const valorNumerico = Number(t.valor);
+      totalNaTabela += (t.tipo?.toUpperCase() === 'ENTRADA' ? valorNumerico : -valorNumerico);
+      
+      return [
         new Date(t.dataHora || t.data).toLocaleDateString('pt-BR'),
         t.descricao?.toUpperCase() || '',
         t.classificacao || '',
         t.tipo || '',
-        Number(t.valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-      ]),
-      headStyles: { fillColor: [59, 130, 246], fontStyle: 'bold' },
-      alternateRowStyles: { fillColor: [248, 250, 252] }
+        valorNumerico.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+      ];
     });
 
-    doc.save('relatorio_financeiro.pdf');
+    // Criamos o objeto de configuração como 'any' para evitar o erro TS2353
+    const configuracaoTabela: any = {
+      startY: 40,
+      head: [['DATA', 'DESCRIÇÃO', 'CATEGORIA', 'TIPO', 'VALOR']],
+      body: corpoTabela,
+      foot: [[
+        { content: 'SALDO LÍQUIDO DO PERÍODO FILTRADO:', colSpan: 4, styles: { halign: 'right', fontStyle: 'bold' } }, 
+        { content: totalNaTabela.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), styles: { fontStyle: 'bold' } }
+      ]],
+      theme: 'striped',
+      headStyles: { fillColor: [59, 130, 246], fontStyle: 'bold' },
+      footStyles: { fillColor: [241, 245, 249], textColor: [0, 0, 0] },
+      didParseRow: (data: any) => {
+        if (data.row.section === 'body') {
+          const tipo = data.row.raw[3]; // TIPO
+          const valorRaw = data.row.raw[4]; // VALOR
+
+          if (tipo === 'ENTRADA') {
+            data.row.styles.fillColor = [235, 255, 235]; 
+          } else if (tipo === 'SAIDA') {
+            const valorLimpo = parseFloat(valorRaw.replace(/[R$\s.]/g, '').replace(',', '.'));
+            if (valorLimpo > 500) data.row.styles.fillColor = [255, 230, 235];
+          }
+        }
+      }
+    };
+
+    autoTable(doc, configuracaoTabela);
+
+    const totalPages = doc.getNumberOfPages(); 
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150);
+      doc.text(`Página ${i} de ${totalPages}`, doc.internal.pageSize.getWidth() - 30, doc.internal.pageSize.getHeight() - 10);
+    }
+
+    doc.save(`extrato_${new Date().getTime()}.pdf`);
   }
 
   private renderizarGraficos() {
@@ -226,24 +263,19 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  // CORREÇÃO DO GRÁFICO DE EVOLUÇÃO (Elimina o "buraco" e as quedas para zero)
   gerarGraficoEvolucao() {
     const labels: string[] = [];
     const dadosEvolucao: number[] = [];
     let saldoAcumulado = 0;
-
-    // Criamos um mapa para consolidar o saldo por dia
     const saldoPorDia = new Map<string, number>();
 
     this.listaTransacoes.forEach(t => {
       const dataStr = new Date(t.dataHora || t.data).toLocaleDateString('pt-BR');
       const valor = t.tipo?.toUpperCase() === 'ENTRADA' ? Number(t.valor) : -Number(t.valor);
-      
       saldoAcumulado += valor;
       saldoPorDia.set(dataStr, saldoAcumulado);
     });
 
-    // Extraímos os dados do mapa (que já está ordenado por causa da ordenação da lista inicial)
     saldoPorDia.forEach((valor, data) => {
       labels.push(data);
       dadosEvolucao.push(valor);
