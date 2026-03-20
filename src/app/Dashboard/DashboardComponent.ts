@@ -34,6 +34,10 @@ export class DashboardComponent implements OnInit {
   isDarkMode: boolean = false;
   percentualGasto: number = 0;
 
+  // NOVAS VARIÁVEIS PARA A MÉTRICA DE CATEGORIA
+  totalGastoFixo: number = 0;
+  totalGastoVariavel: number = 0;
+
   gastoForm = new FormGroup({
     descricao: new FormControl('', [Validators.required]),
     valor: new FormControl('', [Validators.required]), 
@@ -77,6 +81,7 @@ export class DashboardComponent implements OnInit {
     plugins: { legend: { display: true } }
   };
 
+  // Gráfico de Saídas por Descrição (Antigo, mas mantido)
   public pieChartData: ChartConfiguration<'pie'>['data'] = {
     labels: [],
     datasets: [{ data: [], backgroundColor: ['#3b82f6', '#22c55e', '#ef4444', '#f59e0b', '#8b5cf6'] }]
@@ -86,6 +91,17 @@ export class DashboardComponent implements OnInit {
     responsive: true,
     maintainAspectRatio: false,
     plugins: { legend: { position: 'bottom' } }
+  };
+
+  // NOVO GRÁFICO: GASTOS POR CATEGORIA (FIXA VS VARIÁVEL)
+  public categoriaPieChartData: ChartConfiguration<'pie'>['data'] = {
+    labels: ['Fixa', 'Variável'],
+    datasets: [{ 
+      data: [], 
+      backgroundColor: ['#f59e0b', '#8b5cf6'], // Laranja e Roxo
+      borderWidth: 1,
+      borderColor: '#fff'
+    }]
   };
 
   constructor(private service: TransacaoService, private cdr: ChangeDetectorRef) {}
@@ -112,13 +128,19 @@ export class DashboardComponent implements OnInit {
     this.gerarGraficoMensal(); 
     this.gerarGraficoGastosPorDescricao(); 
     this.gerarGraficoEvolucao(); 
+    this.gerarGraficoGastosPorCategoria(); // NOVA CHAMADA
   }
 
   private atualizarMetricas(dados: any[]) {
+    // Totais de Entrada e Saída (Lógica que já existia)
     this.totalEntradas = dados.filter(t => t.tipo?.toUpperCase() === 'ENTRADA').reduce((acc, t) => acc + Number(t.valor), 0);
     this.totalSaidas = dados.filter(t => t.tipo?.toUpperCase() === 'SAIDA').reduce((acc, t) => acc + Number(t.valor), 0);
     this.saldoAtual = this.totalEntradas - this.totalSaidas;
     this.percentualGasto = this.totalEntradas > 0 ? (this.totalSaidas / this.totalEntradas) * 100 : 0;
+
+    // NOVA LÓGICA: SOMA POR CATEGORIA DE GASTO
+    this.totalGastoFixo = dados.filter(t => t.tipo?.toUpperCase() === 'SAIDA' && t.classificacao?.toUpperCase() === 'FIXA').reduce((acc, t) => acc + Number(t.valor), 0);
+    this.totalGastoVariavel = dados.filter(t => t.tipo?.toUpperCase() === 'SAIDA' && t.classificacao?.toUpperCase() === 'VARIAVEL').reduce((acc, t) => acc + Number(t.valor), 0);
   }
 
   formatarMoeda(event: any) {
@@ -216,7 +238,6 @@ export class DashboardComponent implements OnInit {
       ];
     });
 
-    // Criamos o objeto de configuração como 'any' para evitar o erro TS2353
     const configuracaoTabela: any = {
       startY: 40,
       head: [['DATA', 'DESCRIÇÃO', 'CATEGORIA', 'TIPO', 'VALOR']],
@@ -230,14 +251,14 @@ export class DashboardComponent implements OnInit {
       footStyles: { fillColor: [241, 245, 249], textColor: [0, 0, 0] },
       didParseRow: (data: any) => {
         if (data.row.section === 'body') {
-          const tipo = data.row.raw[3]; // TIPO
-          const valorRaw = data.row.raw[4]; // VALOR
+          const tipo = data.row.raw[3]; 
+          const valorRaw = data.row.raw[4];
 
           if (tipo === 'ENTRADA') {
             data.row.styles.fillColor = [235, 255, 235]; 
           } else if (tipo === 'SAIDA') {
-            const valorLimpo = parseFloat(valorRaw.replace(/[R$\s.]/g, '').replace(',', '.'));
-            if (valorLimpo > 500) data.row.styles.fillColor = [255, 230, 235];
+             const valorLimpo = parseFloat(valorRaw.replace(/[R$\s.]/g, '').replace(',', '.'));
+             if (valorLimpo > 500) data.row.styles.fillColor = [255, 230, 235];
           }
         }
       }
@@ -316,6 +337,16 @@ export class DashboardComponent implements OnInit {
     this.barChartData = { 
       labels: meses, 
       datasets: [{ ...this.barChartData.datasets[0], data: valores }] 
+    };
+    this.renderizarGraficos();
+  }
+
+  // NOVA FUNÇÃO: GASTOS POR CATEGORIA (FIXA VS VARIÁVEL)
+  gerarGraficoGastosPorCategoria() {
+    // Usamos as métricas pré-calculadas em atualizarMetricas
+    this.categoriaPieChartData = {
+      labels: ['Fixa', 'Variável'],
+      datasets: [{ ...this.categoriaPieChartData.datasets[0], data: [this.totalGastoFixo, this.totalGastoVariavel] }]
     };
     this.renderizarGraficos();
   }

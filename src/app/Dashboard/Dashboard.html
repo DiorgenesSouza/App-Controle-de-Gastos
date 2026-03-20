@@ -107,38 +107,39 @@
     </section>
 
     <div class="charts-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+      
       <div class="card-branco chart-card">
         <h3>Gastos por Mês</h3>
         <div class="chart-container" style="height: 250px;">
-          <canvas baseChart 
-            [data]="barChartData" 
-            [options]="barChartOptions" 
-            type="bar">
-          </canvas>
+          <canvas baseChart [data]="barChartData" [options]="barChartOptions" type="bar"></canvas>
         </div>
       </div>
 
       <div class="card-branco chart-card">
         <h3>Evolução do Saldo</h3>
         <div class="chart-container" style="height: 250px;">
-          <canvas baseChart 
-            [data]="lineChartData" 
-            [options]="lineChartOptions" 
-            type="line">
-          </canvas>
+          <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" type="line"></canvas>
+        </div>
+      </div>
+
+      <div class="card-branco chart-card">
+        <h3>Fixa vs Variável</h3>
+        <div class="chart-container" style="height: 200px;">
+          <canvas baseChart [data]="categoriaPieChartData" [options]="pieChartOptions" type="pie"></canvas>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-top: 15px; font-size: 0.9em; font-weight: bold;">
+          <span style="color: #f59e0b;">Fixa: {{ totalGastoFixo | currency:'BRL' }}</span>
+          <span style="color: #8b5cf6;">Variável: {{ totalGastoVariavel | currency:'BRL' }}</span>
         </div>
       </div>
 
       <div class="card-branco chart-card">
         <h3>Saídas por Descrição</h3>
         <div class="chart-container" style="height: 250px;">
-          <canvas baseChart 
-            [data]="pieChartData" 
-            [options]="pieChartOptions" 
-            type="pie">
-          </canvas>
+          <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" type="pie"></canvas>
         </div>
       </div>
+
     </div>
 
     <div class="card-branco table-container" style="margin-top: 20px;">

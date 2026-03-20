@@ -9,6 +9,8 @@
   --sucesso: #22c55e;
   --perigo: #ef4444;
   --atencao: #f59e0b;
+  --fixa: #f59e0b;      /* Nova: Cor para Gastos Fixos */
+  --variavel: #8b5cf6;   /* Nova: Cor para Gastos Variáveis */
   --sombra: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
@@ -18,6 +20,8 @@
   --texto-principal: #f8fafc;
   --texto-secundario: #94a3b8;
   --borda: #334155;
+  --fixa: #fbbf24;
+  --variavel: #a78bfa;
 }
 
 /* --- 2. LAYOUT E CABEÇALHO --- */
@@ -151,7 +155,34 @@
   opacity: 0.7;
 }
 
-/* --- 5. TABELA E FILTROS --- */
+/* --- 5. GRÁFICOS (NOVA SEÇÃO) --- */
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.chart-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 380px;
+}
+
+.chart-card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: var(--texto-secundario);
+  border-bottom: 1px solid var(--borda);
+  padding-bottom: 10px;
+}
+
+.chart-container {
+  flex-grow: 1;
+  position: relative;
+}
+
+/* --- 6. TABELA E FILTROS --- */
 .filtros-container {
   display: flex;
   justify-content: space-between;
@@ -202,16 +233,10 @@ th {
 
 td { padding: 15px; border-bottom: 1px solid var(--borda); font-size: 15px; }
 
-/* --- 6. CLASSES DE DESTAQUE DINÂMICO --- */
-.linha-entrada {
-  background-color: rgba(34, 197, 94, 0.04);
-}
+/* --- 7. CLASSES DE DESTAQUE DINÂMICO --- */
+.linha-entrada { background-color: rgba(34, 197, 94, 0.04); }
+.linha-saida { background-color: rgba(239, 68, 68, 0.02); }
 
-.linha-saida {
-  background-color: rgba(239, 68, 68, 0.02);
-}
-
-/* Gasto alto: Vermelho mais visível e texto em negrito */
 .gasto-alto {
   background-color: rgba(239, 68, 68, 0.08) !important;
 }
@@ -221,7 +246,6 @@ td { padding: 15px; border-bottom: 1px solid var(--borda); font-size: 15px; }
   font-weight: 900;
 }
 
-/* Dark Mode Adaptação para destaques */
 .dark-mode .linha-entrada { background-color: rgba(34, 197, 94, 0.08); }
 .dark-mode .linha-saida { background-color: rgba(239, 68, 68, 0.04); }
 .dark-mode .gasto-alto { background-color: rgba(239, 68, 68, 0.15) !important; }
@@ -241,6 +265,25 @@ th:nth-child(5) { text-align: right; }
 }
 .btn-delete:hover { opacity: 1; transform: scale(1.1); }
 
-/* Cores de Texto Dinâmicas */
+/* --- 8. CORES DE TEXTO E CATEGORIAS --- */
 .texto-sucesso { color: var(--sucesso) !important; }
 .texto-perigo { color: var(--perigo) !important; }
+.texto-fixa { color: var(--fixa) !important; font-weight: 700; }
+.texto-variavel { color: var(--variavel) !important; font-weight: 700; }
+
+.btn-theme {
+  background: var(--bg-card);
+  color: var(--texto-principal);
+  border: 1px solid var(--borda);
+  padding: 8px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.btn-theme:hover {
+  background: var(--primaria);
+  color: white;
+}
