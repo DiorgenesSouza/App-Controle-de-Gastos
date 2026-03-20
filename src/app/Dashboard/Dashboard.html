@@ -12,7 +12,7 @@
         </button>
         <div class="saldo-card">
           <span class="label-saldo">SALDO EM CONTA</span>
-          <span class="valor-saldo" [ngClass]="saldoAtual >= 0 ? 'badge-entrada' : 'badge-saida'">
+          <span class="valor-saldo" [ngClass]="saldoAtual >= 0 ? 'texto-sucesso' : 'texto-perigo'">
             {{ saldoAtual | currency:'BRL' }}
           </span>
         </div>
@@ -24,19 +24,29 @@
         <span class="resumo-label">TOTAL DE ENTRADAS</span>
         <div class="resumo-valor">+ {{ totalEntradas | currency:'BRL' }}</div>
       </div>
+
       <div class="resumo-item saida">
         <span class="resumo-label">TOTAL SAÍDAS</span>
         <div class="resumo-valor">- {{ totalSaidas | currency:'BRL' }}</div>
       </div>
-      <div class="resumo-item saldo">
-        <span class="resumo-label">CONSUMO DO ORÇAMENTO</span>
-        <div class="resumo-valor">{{ percentualGasto | number:'1.0-0' }}% utilizado</div>
+
+      <div class="resumo-item" [ngClass]="statusMeta">
+        <span class="resumo-label">CONSUMO DO ORÇAMENTO (Limite: {{ metaMensal | currency:'BRL' }})</span>
+        <div class="resumo-valor">
+          {{ percentualGasto | number:'1.0-0' }}% utilizado
+        </div>
         <div class="progress-bar-bg">
           <div class="progress-bar-fill" 
                [style.width.%]="percentualGasto > 100 ? 100 : percentualGasto"
-               [style.background-color]="percentualGasto > 80 ? 'var(--perigo)' : 'var(--sucesso)'">
+               [ngClass]="{
+                 'bg-sucesso': statusMeta === 'seguro',
+                 'bg-atencao': statusMeta === 'alerta',
+                 'bg-perigo': statusMeta === 'perigo'
+               }">
           </div>
         </div>
+        <p *ngIf="statusMeta === 'alerta'" class="msg-aviso">⚠️ Atenção: Atingiu 80% do limite!</p>
+        <p *ngIf="statusMeta === 'perigo'" class="msg-erro">🚨 Limite mensal ultrapassado!</p>
       </div>
     </div>
 
@@ -71,17 +81,18 @@
             <option value="VARIAVEL">Variável</option>
           </select>
         </div>
+        
         <div class="btn-container">
           <button type="submit" class="btn-salvar" [disabled]="gastoForm.invalid">
             Salvar Lançamento
           </button>
         </div>
       </form>
-      <p *ngIf="exibirSucesso" class="texto-sucesso" style="margin-top: 10px;">✅ Lançamento salvo com sucesso!</p>
+      <p *ngIf="exibirSucesso" class="texto-sucesso feedback-msg">✅ Lançamento salvo com sucesso!</p>
     </section>
 
-    <div class="card-branco" style="display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap;">
-      <div style="display: flex; gap: 15px; align-items: center;">
+    <div class="card-branco filter-bar">
+      <div class="filter-group">
         <select [(ngModel)]="mesSelecionado" (change)="filtrarTransacoes()" class="input-field" style="width: 120px; height: 38px;">
           <option *ngFor="let m of [0,1,2,3,4,5,6,7,8,9,10,11]" [value]="m">Mês {{ m + 1 }}</option>
         </select>
@@ -89,10 +100,13 @@
           <option value="2025">2025</option>
           <option value="2026">2026</option>
         </select>
-        <input type="text" [(ngModel)]="termoBusca" (input)="filtrarTransacoes()" placeholder="🔍 Buscar descrição..." 
-               style="height: 38px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--borda);">
+        <div class="search-wrapper" style="flex: 1; min-width: 200px;">
+          <input type="text" [(ngModel)]="termoBusca" (input)="filtrarTransacoes()" placeholder="🔍 Buscar descrição..." 
+                 class="input-field" style="width: 100%;">
+        </div>
       </div>
-      <button class="btn-theme" (click)="exportarPDF()" style="background: var(--primaria); color: white; border: none;">
+      
+      <button class="btn-pdf" (click)="exportarPDF()">
         📥 Exportar Extrato PDF
       </button>
     </div>
@@ -138,23 +152,23 @@
               <th>Categoria</th>
               <th>Tipo</th>
               <th>Valor</th>
-              <th style="text-align: center;">Ações</th>
+              <th class="text-center">Ações</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let t of transacoesFiltradas; trackBy: trackById">
               <td>{{ (t.dataHora || t.data) | date:'dd/MM/yyyy' }}</td>
-              <td class="text-upper">{{ t.descricao }}</td>
+              <td class="text-upper desc-bold">{{ t.descricao }}</td>
               <td>{{ t.classificacao }}</td>
               <td>
                 <span [ngClass]="t.tipo === 'ENTRADA' ? 'badge-entrada' : 'badge-saida'">
                   {{ t.tipo }}
                 </span>
               </td>
-              <td [ngClass]="t.tipo === 'ENTRADA' ? 'texto-sucesso' : 'texto-perigo'">
+              <td [ngClass]="t.tipo === 'ENTRADA' ? 'texto-sucesso' : 'texto-perigo'" class="val-bold">
                 {{ t.valor | currency:'BRL' }}
               </td>
-              <td style="text-align: center;">
+              <td class="text-center">
                 <button class="btn-delete" (click)="excluirTransacao(t.id)">🗑️</button>
               </td>
             </tr>
