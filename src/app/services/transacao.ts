@@ -25,8 +25,13 @@ export class TransacaoService {
     return this.http.post<any>(this.API, transacao);
   }
 
-  // Remove uma transação pelo ID (Corrigido de 'url' para 'API')
-  deletar(id: number): Observable<any> {
-    return this.http.delete<any>(`${this.API}/${id}`);
+  // RENOMEADO: de 'deletar' para 'excluir' para sumir o erro do TS
+  excluir(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.API}/${id}`);
   }
+
+editar(id: number, transacao: any) {
+ return this.http.put(`${this.API}/${id}`, transacao);
+}
+
 }

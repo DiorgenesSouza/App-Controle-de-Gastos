@@ -2,9 +2,11 @@
   <div class="dashboard-content">
     
     <header class="dashboard-header">
-      <div>
-        <h1>📊 Painel de Controle Financeiro</h1>
-        <p>Acompanhamento de entradas e saídas em tempo real</p>
+      <div class="header-main">
+        <div class="header-text">
+            <h1>📊 Painel de Controle Financeiro</h1>
+          <p>Acompanhamento de entradas e saídas em tempo real</p>
+        </div>
       </div>
       <div class="header-actions">
         <button class="btn-theme" (click)="toggleDarkMode()">
@@ -12,9 +14,9 @@
         </button>
         <div class="saldo-card">
           <span class="label-saldo">SALDO EM CONTA</span>
-          <span class="valor-saldo" [ngClass]="saldoAtual >= 0 ? 'texto-sucesso' : 'texto-perigo'">
+          <div class="valor-saldo" [ngClass]="saldoAtual >= 0 ? 'texto-sucesso' : 'texto-perigo'">
             {{ saldoAtual | currency:'BRL' }}
-          </span>
+          </div>
         </div>
       </div>
     </header>
@@ -24,124 +26,125 @@
         <span class="resumo-label">TOTAL DE ENTRADAS</span>
         <div class="resumo-valor">+ {{ totalEntradas | currency:'BRL' }}</div>
       </div>
-
       <div class="resumo-item saida">
         <span class="resumo-label">TOTAL SAÍDAS</span>
         <div class="resumo-valor">- {{ totalSaidas | currency:'BRL' }}</div>
       </div>
-
-      <div class="resumo-item" [ngClass]="statusMeta">
-        <span class="resumo-label">CONSUMO DO ORÇAMENTO (Limite: {{ metaMensal | currency:'BRL' }})</span>
-        <div class="resumo-valor">
-          {{ percentualGasto | number:'1.0-0' }}% utilizado
-        </div>
+      <div class="resumo-item">
+        <span class="resumo-label">CONSUMO (Limite: {{ metaMensal | currency:'BRL' }})</span>
+        
+        <div class="resumo-valor" 
+       [style.color]="percentualGasto > 100 ? '#ef4444' : '#22c55e'">
+       {{ percentualGasto | number:'1.0-0' }}% utilizado
+       </div>
         <div class="progress-bar-bg">
           <div class="progress-bar-fill" 
-               [style.width.%]="percentualGasto > 100 ? 100 : percentualGasto"
-               [ngClass]="{
-                 'bg-sucesso': statusMeta === 'seguro',
-                 'bg-atencao': statusMeta === 'alerta',
-                 'bg-perigo': statusMeta === 'perigo'
-               }">
+               [style.width.%]="percentualGasto > 100 ? 100 : percentualGasto" 
+               [ngClass]="percentualGasto > 100 ? 'bg-perigo' : (percentualGasto > 80 ? 'bg-atencao' : 'bg-sucesso')">
           </div>
         </div>
-        <p *ngIf="statusMeta === 'alerta'" class="msg-aviso">⚠️ Atenção: Atingiu 80% do limite!</p>
-        <p *ngIf="statusMeta === 'perigo'" class="msg-erro">🚨 Limite mensal ultrapassado!</p>
       </div>
     </div>
 
     <section class="card-branco">
       <h3>Novo Lançamento Diário</h3>
-      <form [formGroup]="gastoForm" (ngSubmit)="salvarGasto()" class="form-grid">
-        <div class="input-field">
-          <label>Descrição</label>
-          <input type="text" formControlName="descricao" placeholder="Ex: Pagamento Aluguel">
+      <form [formGroup]="gastoForm" (ngSubmit)="salvarGasto()" class="form-container">
+        <div class="form-row">
+          <div class="input-field">
+            <label>Descrição</label>
+            <input type="text" formControlName="descricao" placeholder="Ex: Equipamento">
+          </div>
+          <div class="input-field">
+            <label>Valor (R$)</label>
+            <input type="text" formControlName="valor" (input)="formatarMoeda($event)" placeholder="R$ 0,00">
+          </div>
+          <div class="input-field">
+            <label>Data</label>
+            <input type="date" formControlName="data">
+          </div>
+          <div class="input-field">
+            <label>Tipo</label>
+            <select formControlName="tipo">
+              <option value="">Selecione</option>
+              <option value="ENTRADA">Entrada</option>
+              <option value="SAIDA">Saída</option>
+            </select>
+          </div>
+          <div class="input-field">
+            <label>Classificação</label>
+            <select formControlName="classificacao">
+              <option value="">Selecione</option>
+              <option value="FIXA">Fixa</option>
+              <option value="VARIAVEL">Variável</option>
+            </select>
+          </div>
         </div>
-        <div class="input-field">
-          <label>Valor (R$)</label>
-          <input type="text" formControlName="valor" (input)="formatarMoeda($event)" placeholder="R$ 0,00">
-        </div>
-        <div class="input-field">
-          <label>Data</label>
-          <input type="date" formControlName="data">
-        </div>
-        <div class="input-field">
-          <label>Tipo</label>
-          <select formControlName="tipo">
-            <option value="" disabled selected>Selecione</option>
-            <option value="ENTRADA">Entrada</option>
-            <option value="SAIDA">Saída</option>
-          </select>
-        </div>
-        <div class="input-field">
-          <label>Classificação</label>
-          <select formControlName="classificacao">
-            <option value="" disabled selected>Selecione</option>
-            <option value="FIXA">Fixa</option>
-            <option value="VARIAVEL">Variável</option>
-          </select>
-        </div>
-        
         <div class="btn-container">
-          <button type="submit" class="btn-salvar" [disabled]="gastoForm.invalid">
-            Salvar Lançamento
-          </button>
+          <button type="submit" class="btn-salvar" [disabled]="gastoForm.invalid">Salvar Lançamento</button>
         </div>
       </form>
-      <p *ngIf="exibirSucesso" class="texto-sucesso feedback-msg">✅ Lançamento salvo com sucesso!</p>
     </section>
 
-    <div class="card-branco filter-bar">
+    <div class="filter-bar card-branco">
       <div class="filter-group">
-        <select [(ngModel)]="mesSelecionado" (change)="filtrarTransacoes()" class="input-field" style="width: 120px; height: 38px;">
-          <option *ngFor="let m of [0,1,2,3,4,5,6,7,8,9,10,11]" [value]="m">Mês {{ m + 1 }}</option>
+      <select [(ngModel)]="mesSelecionado" (change)="filtrarTransacoes()">
+       <option value="0">Todos os Meses</option>
+       <option value="1">Janeiro</option>
+       <option value="2">Fevereiro</option>
+       <option value="3">Março</option>
+       <option value="4">Abril</option> 
+       <option value="5">Maio</option>
+       <option value="6">Junho</option>
+       <option value="7">Julho</option>
+       <option value="8">Agosto</option>
+       <option value="9">Setembro</option>
+       <option value="10">Outubro</option>
+       <option value="11">Novembro</option>
+       <option value="12">Dezembro</option>
+       </select>
+       
+        <select [(ngModel)]="anoSelecionado" (change)="filtrarTransacoes()">
+          <option [value]="2025">2025</option>
+          <option [value]="2026">2026</option>
+          <option [value]="2027">2027</option>
+          <option [value]="2028">2028</option>
+          <option [value]="2029">2029</option>
+          <option [value]="2030">2030</option>
+
         </select>
-        <select [(ngModel)]="anoSelecionado" (change)="filtrarTransacoes()" class="input-field" style="width: 100px; height: 38px;">
-          <option value="2025">2025</option>
-          <option value="2026">2026</option>
-        </select>
-        <div class="search-wrapper" style="flex: 1; min-width: 200px;">
-          <input type="text" [(ngModel)]="termoBusca" (input)="filtrarTransacoes()" placeholder="🔍 Buscar descrição..." 
-                 class="input-field" style="width: 100%;">
-        </div>
+        <input type="text" [(ngModel)]="termoBusca" (input)="filtrarTransacoes()" placeholder="Buscar descrição...">
       </div>
-      
-      <button class="btn-pdf" (click)="exportarPDF()">
-        📥 Exportar Extrato PDF
-      </button>
+      <button class="btn-pdf" (click)="exportarPDF()">📥 Exportar Extrato PDF</button>
     </div>
 
     <div class="charts-grid">
-      <div class="card-branco">
+      <div class="card-branco card-chart">
         <h3>Gastos por Mês</h3>
         <div class="chart-wrapper">
-          <canvas baseChart [data]="barChartData" [options]="chartOptions" [type]="'bar'"></canvas>
+          <canvas baseChart [data]="barChartData" [options]="chartOptions" type="bar"></canvas>
         </div>
       </div>
-
-      <div class="card-branco">
+      <div class="card-branco card-chart">
         <h3>Evolução do Saldo</h3>
         <div class="chart-wrapper">
-          <canvas baseChart [data]="lineChartData" [options]="chartOptions" [type]="'line'"></canvas>
+          <canvas baseChart [data]="lineChartData" [options]="chartOptions" type="line"></canvas>
         </div>
       </div>
-
-      <div class="card-branco">
+      <div class="card-branco card-chart">
         <h3>Fixa vs Variável</h3>
         <div class="chart-wrapper">
-          <canvas baseChart [data]="categoryPieData" [options]="chartOptions" [type]="'pie'"></canvas>
+          <canvas baseChart [data]="pieChartData" [options]="chartOptions" type="pie"></canvas>
         </div>
       </div>
-
-      <div class="card-branco">
+      <div class="card-branco card-chart">
         <h3>Saídas por Descrição</h3>
         <div class="chart-wrapper">
-          <canvas baseChart [data]="descriptionPieData" [options]="chartOptions" [type]="'doughnut'"></canvas>
+          <canvas baseChart [data]="doughnutChartData" [options]="chartOptions" type="doughnut"></canvas>
         </div>
       </div>
     </div>
 
-    <div class="card-branco">
+    <section class="card-branco">
       <h3>Histórico de Lançamentos</h3>
       <div class="table-responsive">
         <table>
@@ -152,30 +155,36 @@
               <th>Categoria</th>
               <th>Tipo</th>
               <th>Valor</th>
-              <th class="text-center">Ações</th>
+              <th class="coluna-acoes">Ações</th>
             </tr>
           </thead>
-          <tbody>
-            <tr *ngFor="let t of transacoesFiltradas; trackBy: trackById">
-              <td>{{ (t.dataHora || t.data) | date:'dd/MM/yyyy' }}</td>
-              <td class="text-upper desc-bold">{{ t.descricao }}</td>
-              <td>{{ t.classificacao }}</td>
-              <td>
-                <span [ngClass]="t.tipo === 'ENTRADA' ? 'badge-entrada' : 'badge-saida'">
-                  {{ t.tipo }}
-                </span>
-              </td>
-              <td [ngClass]="t.tipo === 'ENTRADA' ? 'texto-sucesso' : 'texto-perigo'" class="val-bold">
-                {{ t.valor | currency:'BRL' }}
-              </td>
-              <td class="text-center">
-                <button class="btn-delete" (click)="excluirTransacao(t.id)">🗑️</button>
-              </td>
-            </tr>
-          </tbody>
+        <tbody>
+          <tr *ngFor="let t of transacoesFiltradas" [ngClass]="{'linha-perigo': t.valor > metaMensal && t.tipo === 'SAIDA'}">
+            <td>{{ (t.dataHora || t.data) | date:'dd/MM/yyyy' }}</td>
+            <td class="desc-bold">{{ t.descricao | titlecase }}</td>
+            <td>{{ t.classificacao }}</td>
+            <td>
+              <span [ngClass]="t.tipo === 'ENTRADA' ? 'badge-entrada' : 'badge-saida'">
+                {{ t.tipo }}
+              </span>
+            </td>
+            <td>{{ t.valor | currency:'BRL' }}</td>
+          <!-- <td>
+              <div style="display: flex; gap: 10px; justify-content: center;">
+                <button type="button" class="btn-edit" (click)="editarTransacao(t)" style="background: none; border: none; cursor: pointer; font-size: 18px;">📝</button>
+                <button type="button" class="btn-delete" (click)="excluirTransacao(t.id)" style="background: none; border: none; cursor: pointer; font-size: 18px;">🗑️</button>
+              </div>
+            </td> -->
+            <td class="coluna-acoes">
+            <div class="acoes-container">
+             <button type="button" class="btn-edit" (click)="editarTransacao(t)" title="Editar Lançamento">📝</button>
+             <button type="button" class="btn-delete" (click)="excluirTransacao(t.id)" title="Excluir Lançamento">🗑️</button>
+            </div>
+          </td>
+          </tr>
+        </tbody>
         </table>
       </div>
-    </div>
-
+    </section>
   </div>
 </div>
