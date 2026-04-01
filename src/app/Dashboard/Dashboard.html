@@ -12,6 +12,10 @@
         <button class="btn-theme" (click)="toggleDarkMode()">
           {{ isDarkMode ? '☀️ Modo Claro' : '🌙 Modo Escuro' }}
         </button>
+        <button class="btn-logout" (click)="logout()"> 
+            Sair 🚪
+        </button>
+
         <div class="saldo-card">
           <span class="label-saldo">SALDO EM CONTA</span>
           <div class="valor-saldo" [ngClass]="saldoAtual >= 0 ? 'texto-sucesso' : 'texto-perigo'">

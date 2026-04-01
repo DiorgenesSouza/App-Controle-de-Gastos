@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import { Component, OnInit, ViewChildren, QueryList, ChangeDetectorRef } from '@angular/core';
 import { TransacaoService } from '../services/transacao';
 import { ChartConfiguration, ChartOptions, Chart, registerables } from 'chart.js';
@@ -57,7 +58,11 @@ export class DashboardComponent implements OnInit {
     plugins: { legend: { labels: { color: '#94a3b8' } } } 
   };
 
-  constructor(private service: TransacaoService, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private service: TransacaoService,
+    private cdr: ChangeDetectorRef,
+    private router: Router
+  ) {}
 
   ngOnInit() { this.carregarDados(); }
 
@@ -144,6 +149,21 @@ finalizarAcao() {
       this.service.excluir(id).subscribe(() => this.carregarDados());
     }
   }
+
+  logout() {
+  if (confirm('Deseja realmente sair do sistema?')) {
+    // 1. Limpa dados de sessão (se houver)
+    localStorage.clear();
+    sessionStorage.clear();
+
+    console.log('Sessão encerrada.');
+
+    // 2. Redireciona para a tela de login
+    // Certifique-se de que a rota no seu app.routes.ts seja 'login'
+    this.router.navigate(['/login']);
+  }
+}
+
 
   editarTransacao(t: any) {
   this.gastoForm.patchValue({
